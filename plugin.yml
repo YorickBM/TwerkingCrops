@@ -1,0 +1,9 @@
+name: Twerking-Crops
+main: Spigot.TwerkingCrops.Core
+version: 9.1
+api-version: 1.13
+commands:
+   set:
+      description: Set Functions True/False In-Game
+      usage: <command>
+      
