@@ -6,7 +6,15 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
+import org.bukkit.TreeSpecies;
+import org.bukkit.TreeType;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.material.MaterialData;
+import org.bukkit.material.Sapling;
+import org.bukkit.material.Tree;
+
+import Spigot.TwerkingCrops.TreeTypes.ETreeType;
 
 /*
  * Created by Yorick, Last modified on: 01-10-2020
@@ -19,7 +27,7 @@ public class Materials {
 		Warped_Stem, Warped_Wart_Block}
 	
 	private static HashMap<String, EMaterial> MaterialByType = new HashMap<String, EMaterial>();
-	private static HashMap<String, EMaterial> TreeTypes = new HashMap<String, EMaterial>();
+	private static HashMap<String, EMaterial> TreeTypesL = new HashMap<String, EMaterial>();
 	
 	public static boolean IsSimilar(String mat, EMaterial type) {
 		try {
@@ -180,27 +188,27 @@ public class Materials {
 		MaterialByType.put("AIR", EMaterial.Air);
 		
 		//Trees
-		TreeTypes.put("OAK_SAPLING", EMaterial.Oak_Sapling);
-		TreeTypes.put("SAPLING|0", EMaterial.Oak_Sapling);
+		TreeTypesL.put("OAK_SAPLING", EMaterial.Oak_Sapling);
+		TreeTypesL.put("SAPLING|0", EMaterial.Oak_Sapling);
 		
-		TreeTypes.put("SPRUCE_SAPLING", EMaterial.Spruce_Sapling);
-		TreeTypes.put("SAPLING|1", EMaterial.Spruce_Sapling);
+		TreeTypesL.put("SPRUCE_SAPLING", EMaterial.Spruce_Sapling);
+		TreeTypesL.put("SAPLING|1", EMaterial.Spruce_Sapling);
 
-		TreeTypes.put("JUNGLE_SAPLING", EMaterial.Jungle_Sapling);
-		TreeTypes.put("SAPLING|3", EMaterial.Jungle_Sapling);
+		TreeTypesL.put("JUNGLE_SAPLING", EMaterial.Jungle_Sapling);
+		TreeTypesL.put("SAPLING|3", EMaterial.Jungle_Sapling);
 		
-		TreeTypes.put("ACACIA_SAPLING", EMaterial.Acacia_Sapling);
-		TreeTypes.put("SAPLING|4", EMaterial.Acacia_Sapling);
+		TreeTypesL.put("ACACIA_SAPLING", EMaterial.Acacia_Sapling);
+		TreeTypesL.put("SAPLING|4", EMaterial.Acacia_Sapling);
 		
-		TreeTypes.put("BIRCH_SAPLING", EMaterial.Birch_Sapling);
-		TreeTypes.put("SAPLING|2", EMaterial.Birch_Sapling);
+		TreeTypesL.put("BIRCH_SAPLING", EMaterial.Birch_Sapling);
+		TreeTypesL.put("SAPLING|2", EMaterial.Birch_Sapling);
 		
-		TreeTypes.put("DARK_OAK_SAPLING", EMaterial.Dark_Oak_Sapling);
-		TreeTypes.put("SAPLING|5", EMaterial.Dark_Oak_Sapling);
+		TreeTypesL.put("DARK_OAK_SAPLING", EMaterial.Dark_Oak_Sapling);
+		TreeTypesL.put("SAPLING|5", EMaterial.Dark_Oak_Sapling);
 		
-		TreeTypes.put("RED_MUSHROOM", EMaterial.Red_Mushroom);
+		TreeTypesL.put("RED_MUSHROOM", EMaterial.Red_Mushroom);
 		
-		TreeTypes.put("BROWN_MUSHROOM", EMaterial.Brown_Mushroom);
+		TreeTypesL.put("BROWN_MUSHROOM", EMaterial.Brown_Mushroom);
 	}
 	
 	public static void InitExtra() {
@@ -209,7 +217,7 @@ public class Materials {
 	
 	public static EMaterial GetTreeType(Block mat) {
 		String type = TypeConverter(mat);
-		for(HashMap.Entry<String, EMaterial> pair : TreeTypes.entrySet()) {
+		for(HashMap.Entry<String, EMaterial> pair : TreeTypesL.entrySet()) {
 			if(type.equalsIgnoreCase(pair.getKey())) {
 				return pair.getValue();
 			}
@@ -227,14 +235,30 @@ public class Materials {
 		}
 	}
 	
-	public static void SetTree(Block mat, EMaterial type) {
+	public static void SetTree(Block mat, EMaterial type, ETreeType treeType) {
 		
 		boolean placed = false;
-		if(TreeTypes.containsValue(type)) {
-			for(HashMap.Entry<String, EMaterial> pair : TreeTypes.entrySet()) {
+		if(TreeTypesL.containsValue(type)) {
+			for(HashMap.Entry<String, EMaterial> pair : TreeTypesL.entrySet()) {
 				if(pair.getValue() == type) {
 					try {
-						mat.setType(Material.valueOf(pair.getKey()));
+						if(pair.getKey().contains("|")) {
+							mat.setType(Material.valueOf("SAPLING"));
+							BlockState bs = mat.getState();
+							MaterialData state = bs.getData();
+							
+							if(state instanceof Sapling) {
+								Sapling tree = (Sapling)state;
+								TreeType typeX = TreeTypes.GetType(treeType);
+
+								tree.setSpecies(TreeSpecies.valueOf(typeX.toString()));
+							}
+							
+							bs.setData(state);;
+							bs.update(true);
+							
+						} else
+							mat.setType(Material.valueOf(pair.getKey()));
 						placed = true;
 						return;
 					}catch(Exception ex) {
@@ -244,7 +268,7 @@ public class Materials {
 			}
 			
 			if(!placed) {
-				Core.getInstance().getLogger().log(Level.SEVERE, "Could not place material: " + type);
+				Core.getInstance().getLogger().log(Level.SEVERE, "Could not place sapling: " + type);
 			}
 		}
 	}
