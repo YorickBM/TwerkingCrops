@@ -1,13 +1,11 @@
 package Spigot.TwerkingCrops;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
 import org.bukkit.CropState;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.Crops;
@@ -16,6 +14,7 @@ import org.bukkit.material.MaterialData;
 import Spigot.TwerkingCrops.Materials.EMaterial;
 import Spigot.TwerkingCrops.TreeTypes.ETreeType;
 
+@SuppressWarnings("deprecation")
 public class BoneMealer {
 	
 	public BoneMealer() {
@@ -62,14 +61,13 @@ public class BoneMealer {
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	public boolean applyBoneMeal(Block block) {
 		
         if (Materials.IsSimilar(block, EMaterial.Sapling)) {  
         	
     		Random rand2 = new Random();
-    		int num2 = rand2.nextInt(2);
-    		if(num2 > 2) {
+    		int num2 = rand2.nextInt(8);
+    		if(num2 >= 2) {
     			return true;
     		}
         	
@@ -84,11 +82,12 @@ public class BoneMealer {
 	        				block.getLocation().getWorld().generateTree(block.getLocation(), TreeTypes.GetType(ETreeType.Large_Oak));
 	        				if(Materials.IsSimilar(block, EMaterial.Air))
 	        					Materials.SetTree(block, EMaterial.Oak_Sapling,ETreeType.Oak);
-
+	        				return true;
 	        			} else {
 	        				block.getLocation().getWorld().generateTree(block.getLocation(), TreeTypes.GetType(ETreeType.Oak));
 	        				if(Materials.IsSimilar(block, EMaterial.Air))
 	        					Materials.SetTree(block, EMaterial.Oak_Sapling, ETreeType.Oak);
+	        				return true;
 	        			}
         			}
         			break;
@@ -102,11 +101,13 @@ public class BoneMealer {
         				return true;
         			}
         			
-        			Materials.SetType(block, EMaterial.Air);
-    				block.getLocation().getWorld().generateTree(block.getLocation(), TreeTypes.GetType(ETreeType.Spruce));
-    				if(Materials.IsSimilar(block, EMaterial.Air)) 
-    					Materials.SetTree(block, EMaterial.Spruce_Sapling, ETreeType.Spruce);
-    				return true;
+        			if(Materials.SetType(block, EMaterial.Air)) {
+	    				block.getLocation().getWorld().generateTree(block.getLocation(), TreeTypes.GetType(ETreeType.Spruce));
+	    				if(Materials.IsSimilar(block, EMaterial.Air)) 
+	    					Materials.SetTree(block, EMaterial.Spruce_Sapling, ETreeType.Spruce);
+	    				return true;
+        			}
+        			break;
         			
         		case Jungle_Sapling:
         			List<Location> locJ = CheckTwoByTwo(block, EMaterial.Jungle_Sapling);
@@ -117,12 +118,13 @@ public class BoneMealer {
         				return true;
         			}
         			
-    				Materials.SetType(block, EMaterial.Air);
-    				block.getLocation().getWorld().generateTree(block.getLocation(), TreeTypes.GetType(ETreeType.Jungle));
-    				if(Materials.IsSimilar(block, EMaterial.Air)) 
-    					Materials.SetTree(block, EMaterial.Jungle_Sapling, ETreeType.Jungle);
-    				
-        			return true;
+    				if(Materials.SetType(block, EMaterial.Air)) {
+	    				block.getLocation().getWorld().generateTree(block.getLocation(), TreeTypes.GetType(ETreeType.Jungle));
+	    				if(Materials.IsSimilar(block, EMaterial.Air))
+	    					Materials.SetTree(block, EMaterial.Jungle_Sapling, ETreeType.Jungle);
+	        			return true;
+    				}
+    				break;
         			
         		case Dark_Oak_Sapling:
         			List<Location> locD = CheckTwoByTwo(block, EMaterial.Dark_Oak_Sapling);
@@ -130,7 +132,8 @@ public class BoneMealer {
         				locD.stream().forEach(s -> Materials.SetType(s.getBlock(), EMaterial.Air));
         				locD.get(3).getWorld().generateTree(locD.get(3), TreeTypes.GetType(ETreeType.Dark_Oak));
         				reset(locD, EMaterial.Dark_Oak_Sapling, ETreeType.Dark_Oak);
-        			} 
+        				return true;
+        			}
         			break;
         			
         		case Acacia_Sapling:
@@ -138,30 +141,37 @@ public class BoneMealer {
         				block.getLocation().getWorld().generateTree(block.getLocation(), TreeTypes.GetType(ETreeType.Acacia));
         				if(Materials.IsSimilar(block, EMaterial.Air))
         					Materials.SetTree(block, EMaterial.Acacia_Sapling, ETreeType.Acacia);
+        				return true;
         			}
         			break;
         			
         		case Birch_Sapling:
         			if(Materials.SetType(block, EMaterial.Air)) {
         				block.getLocation().getWorld().generateTree(block.getLocation(), TreeTypes.GetType(ETreeType.Birch));
-        				if(Materials.IsSimilar(block, EMaterial.Air))
+        				if(Materials.IsSimilar(block, EMaterial.Air)) {
         					Materials.SetTree(block, EMaterial.Birch_Sapling, ETreeType.Birch);
+        				return true;
+        				}
         			}
         			break;
         			
         		case Brown_Mushroom:
         			if(Materials.SetType(block, EMaterial.Air)) {
         				block.getLocation().getWorld().generateTree(block.getLocation(), TreeTypes.GetType(ETreeType.Brown_Mushroom));
-        				if(Materials.IsSimilar(block, EMaterial.Air))
+        				if(Materials.IsSimilar(block, EMaterial.Air)) {
         					Materials.SetTree(block, EMaterial.Brown_Mushroom, ETreeType.Brown_Mushroom);
+        					return true;
+        				}
         			}
         			break;
         			
         		case Red_Mushroom:
         			if(Materials.SetType(block, EMaterial.Air)) {
         				block.getLocation().getWorld().generateTree(block.getLocation(), TreeTypes.GetType(ETreeType.Red_Mushroom));
-        				if(Materials.IsSimilar(block, EMaterial.Air))
+        				if(Materials.IsSimilar(block, EMaterial.Air)) {
         					Materials.SetTree(block, EMaterial.Red_Mushroom, ETreeType.Red_Mushroom);
+        					return true;
+        				}
         			}
         			break;
         	
@@ -202,7 +212,6 @@ public class BoneMealer {
 			
 		} else {
 			//System.out.print(block);
-			//System.out.println("Item is not supported: " + Materials.TypeConverter(block));
 			return false;
 		}
         

@@ -31,8 +31,8 @@ public class CustomTimer {
 	        			 int twerkData = Core.getInstance().TwerkData.get(p.getUniqueId());
 		        		 String TwerkAmount = Integer.toString(twerkData);
 		        		 if(twerkData >= 2) {
-		        			 String message = Core.getInstance().getConfig().getString("Messages.TwerkingPerSecond.Shifting").replace("%ShiftingRate%", TwerkAmount);	
-		        			 Core.getInstance().actionBar.sendActionBar(p, ToolBox.cc(message));
+		        			 String message = Core.getInstance().GetLanguageManager().GetValue("TwerkingPerSecond.Shifting").replace("%ShiftingRate%", TwerkAmount);	
+		        			 Core.getInstance().GetActionBar().sendActionBar(p, ToolBox.cc(message));
 		        		 }
 		        		 Core.getInstance().TwerkData.remove(p.getUniqueId());
 	        		 }
@@ -59,19 +59,19 @@ public class CustomTimer {
 	        	 
 	        		if(wheat >= Core.getInstance().getConfig().getInt("CustomTime.SEEDS")) {
 	        			wheat = -1;
-	        			Core.getInstance().seedsForTimer.stream().filter(s -> Materials.IsSimilar(s.getLocation().getBlock(), EMaterial.Wheat_Seeds)).forEach(s -> Core.getInstance().boneMealer.applyBoneMeal(s.getLocation().getBlock()));
+	        			Core.getInstance().seedsForTimer.stream().filter(s -> Materials.IsSimilar(s.getLocation().getBlock(), EMaterial.Wheat_Seeds)).forEach(s -> Core.getInstance().GetBonemealer().applyBoneMeal(s.getLocation().getBlock()));
 	        		}
 	        		if(carrot >= Core.getInstance().getConfig().getInt("CustomTime.CARROT")) {
 	        			carrot = -1;
-	        			Core.getInstance().seedsForTimer.stream().filter(s -> Materials.IsSimilar(s.getLocation().getBlock(), EMaterial.Carrot)).forEach(s -> Core.getInstance().boneMealer.applyBoneMeal(s.getLocation().getBlock()));
+	        			Core.getInstance().seedsForTimer.stream().filter(s -> Materials.IsSimilar(s.getLocation().getBlock(), EMaterial.Carrot)).forEach(s -> Core.getInstance().GetBonemealer().applyBoneMeal(s.getLocation().getBlock()));
 	        		}
 	        		if(potato >= Core.getInstance().getConfig().getInt("CustomTime.POTATO")) {
 	        			potato = -1;
-	        			Core.getInstance().seedsForTimer.stream().filter(s -> Materials.IsSimilar(s.getLocation().getBlock(), EMaterial.Carrot)).forEach(s -> Core.getInstance().boneMealer.applyBoneMeal(s.getLocation().getBlock()));
+	        			Core.getInstance().seedsForTimer.stream().filter(s -> Materials.IsSimilar(s.getLocation().getBlock(), EMaterial.Carrot)).forEach(s -> Core.getInstance().GetBonemealer().applyBoneMeal(s.getLocation().getBlock()));
 	        		}
 	        		if(beetroot >= Core.getInstance().getConfig().getInt("CustomTime.BEETROOT")) {
 	        			beetroot = -1;
-	        			Core.getInstance().seedsForTimer.stream().filter(s -> Materials.IsSimilar(s.getLocation().getBlock(), EMaterial.Carrot)).forEach(s -> Core.getInstance().boneMealer.applyBoneMeal(s.getLocation().getBlock()));
+	        			Core.getInstance().seedsForTimer.stream().filter(s -> Materials.IsSimilar(s.getLocation().getBlock(), EMaterial.Carrot)).forEach(s -> Core.getInstance().GetBonemealer().applyBoneMeal(s.getLocation().getBlock()));
 	        		}
 	        		
 	        		wheat += 1;

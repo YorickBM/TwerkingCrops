@@ -18,6 +18,8 @@ public class SetAutoCompleter implements TabCompleter {
 		  
 	      if(cmd.getName().equalsIgnoreCase("set") && args.length == 1){
 	          return Core.getInstance().Functions;
+	      } else if(cmd.getName().equalsIgnoreCase("set") && args.length == 2 && args[1].equalsIgnoreCase("language")) {
+	    	  return Core.getInstance().GetLanguageManager().GetAllLanguages();
 	      } else if(cmd.getName().equalsIgnoreCase("set") && args.length == 2){
 	    	  List<String> l = new ArrayList<String>();
 	    	  l.add("false");

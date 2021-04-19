@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import Spigot.TwerkingCrops.Core;
 import Spigot.TwerkingCrops.Materials;
+import Spigot.TwerkingCrops.ToolBox;
 import Spigot.TwerkingCrops.Materials.EMaterial;
 
 /*
@@ -37,7 +38,7 @@ public class PlayerEvents_1_13 implements Listener, PlayerEvents {
 		Player player = e.getPlayer();
 		
 		// Twerk Enabled, Has Permission, isSneaking, Is not flying
-		if (Core.getInstance().getConfig().getString("Custom.Twerking").contentEquals("FALSE"))
+		if (!ToolBox.checkFunctionState("Twerking"))
 			return;
 		if (!player.hasPermission("Twerk.use"))
 			return;
@@ -71,7 +72,7 @@ public class PlayerEvents_1_13 implements Listener, PlayerEvents {
         }
 
         //Apply Random Effect
-        if (Core.getInstance().getConfig().getString("Custom.Randomizer").contentEquals("TRUE"))
+        if (ToolBox.checkFunctionState("Randomizer"))
         {
           if (EnchLevel == 0) {
             succes = random.nextInt(5);
@@ -138,7 +139,7 @@ public class PlayerEvents_1_13 implements Listener, PlayerEvents {
 					return;
 					}
 				}   
-				if(Core.getInstance().boneMealer.applyBoneMeal(block))
+				if(Core.getInstance().GetBonemealer().applyBoneMeal(block))
 					createParticles(block.getLocation());
 			} else {
 				if(Materials.IsSimilar(block, EMaterial.Melon_Stem) || Materials.IsSimilar(block, EMaterial.Pumpkin_Stem)) { //block.getType() == Material.PUMPKIN_STEM || 
@@ -202,7 +203,7 @@ public class PlayerEvents_1_13 implements Listener, PlayerEvents {
 		Core.getInstance().BlockToStem.put(Space.getLocation(), StemBlock.getLocation());
 	} 
 	public void createParticles(Location loc) {
-		if (Core.getInstance().getConfig().getString("Custom.Particles").equals("TRUE")) {
+		if (ToolBox.checkFunctionState("Particles")) {
 			Location newLoc = new Location(loc.getWorld(), loc.getX() + 0.5D, loc.getY() + 0.5D, loc.getZ() + 0.5D);
 			for (Player p : Bukkit.getOnlinePlayers()) {
 				p.spawnParticle(Particle.VILLAGER_HAPPY, newLoc, 5, 0.2D, 0.2D, 0.2D);

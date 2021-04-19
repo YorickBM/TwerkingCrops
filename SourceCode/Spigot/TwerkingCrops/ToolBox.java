@@ -112,11 +112,24 @@ public class ToolBox {
 	    }
 	    return ChatColor.translateAlternateColorCodes('&', msg
 	      .replace("%Func%", SetFunctie.Func)
-	      .replace("%Bool%", SetFunctie.Bool)
+	      .replace("%Result%", SetFunctie.Result)
+	      .replace("%Langs%", process(Core.getInstance().GetLanguageManager().GetAllLanguages()))
 	      
 	      .replace("%Functions%", method(Functions))
 	      .replace("%Reason%", SetFunctie.Reason)
 	      );
+	  }
+	  public static String process(List<String> data) {
+		  if(data.size() < 1) return "";
+		  
+		  String result = "";
+		  int limit = data.size();
+		  if(data.size() > 3) limit = 3;
+		  
+		  for(int i = 0; i < limit; i++) {
+			  result += data.get(i) + "/";
+		  }
+		  return result.substring(0, result.length() - 1);
 	  }
 	  public static String method(String str)
 	  {
@@ -130,9 +143,10 @@ public class ToolBox {
 		Core.getInstance().Functions.add(Name);
 		if(Core.getInstance().getConfig().getString(ConfigLocation) != null) {
 			if (Core.getInstance().getConfig().getString(ConfigLocation).equals(State)) {
-	    	Core.getInstance().getLogger().log(Level.INFO, Name + " succesfully disabled");
+				if(State.equalsIgnoreCase("TRUE")) Core.getInstance().getLogger().log(Level.INFO, Name + " successfully enabled");
+				else Core.getInstance().getLogger().log(Level.INFO, "Successfully set" + Name + " to " + State);
 			} else {
-				Core.getInstance().getLogger().log(Level.INFO, Name + " succesfully enabled");
+				Core.getInstance().getLogger().log(Level.INFO, Name + " successfully disabled");
 			}
 		} else {
 			Core.getInstance().getLogger().log(Level.WARNING, Name + " failed to load!");
@@ -203,13 +217,11 @@ public class ToolBox {
 	  
 	  public static void CheckFuncties()
 	  {
-	    addFunction("CustomTime", "Custom.CustomTime", "FALSE");
-	    addFunction("Particles", "Custom.Particles", "FALSE");
-	    addFunction("Randomizer", "Custom.Randomizer", "FALSE");
-	    addFunction("TwerkPerSecond", "Custom.TwerkPerSecond", "FALSE");
-	    addFunction("DisableBoneMeal", "Custom.DisableBoneMeal", "FALSE");
-	    
-	    Core.getInstance().Functions.add("Twerking");
+		  addFunction("Twerking", "Custom.Twerking", "TRUE");
+		  addFunction("CustomTime", "Custom.CustomTime", "TRUE");
+		  addFunction("Particles", "Custom.Particles", "TRUE");
+		  addFunction("Randomizer", "Custom.Randomizer", "TRUE");
+		  addFunction("TwerkPerSecond", "Custom.TwerkPerSecond", "TRUE");
 	  }	  
 	  public static boolean checkFunctionState(String Function) {
 		  if(Core.getInstance().getConfig().getString("Custom." + Function).equals("TRUE")) {

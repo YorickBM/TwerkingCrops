@@ -12,7 +12,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.Sapling;
-import org.bukkit.material.Tree;
 
 import Spigot.TwerkingCrops.TreeTypes.ETreeType;
 
@@ -20,11 +19,12 @@ import Spigot.TwerkingCrops.TreeTypes.ETreeType;
  * Created by Yorick, Last modified on: 01-10-2020
  */
 
+@SuppressWarnings("deprecation")
 public class Materials {
 	public static enum EMaterial {Air, Bone_Meal, Sea_Grass, Sea_Pickle, Soil, Pumpkin, Pumpkin_Stem, 
 		Melon, Melon_Stem, Wheat_Seeds, Carrot, Potato, Grass, Sugar_Cane, Cactus, Brown_Mushroom, Red_Mushroom, Beetroot_Seeds, 
 		Oak_Sapling, Dark_Oak_Sapling, Spruce_Sapling, Jungle_Sapling, Birch_Sapling, Acacia_Sapling, Sapling,
-		Warped_Stem, Warped_Wart_Block}
+		Warped_Fungus, Crimson_Fungus}
 	
 	private static HashMap<String, EMaterial> MaterialByType = new HashMap<String, EMaterial>();
 	private static HashMap<String, EMaterial> TreeTypesL = new HashMap<String, EMaterial>();
@@ -184,6 +184,8 @@ public class Materials {
 		MaterialByType.put("SAPLING|5", EMaterial.Sapling);
 		MaterialByType.put("RED_MUSHROOM", EMaterial.Sapling);
 		MaterialByType.put("BROWN_MUSHROOM", EMaterial.Sapling);
+		MaterialByType.put("WARPED_FUNGUS", EMaterial.Sapling);
+		MaterialByType.put("CRIMSON_FUNGUS", EMaterial.Sapling);
 		
 		MaterialByType.put("AIR", EMaterial.Air);
 		
@@ -207,8 +209,10 @@ public class Materials {
 		TreeTypesL.put("SAPLING|5", EMaterial.Dark_Oak_Sapling);
 		
 		TreeTypesL.put("RED_MUSHROOM", EMaterial.Red_Mushroom);
-		
 		TreeTypesL.put("BROWN_MUSHROOM", EMaterial.Brown_Mushroom);
+		
+		TreeTypesL.put("WARPED_FUNGUS", EMaterial.Warped_Fungus);
+		TreeTypesL.put("CRIMSON_FUNGUS", EMaterial.Crimson_Fungus);
 	}
 	
 	public static void InitExtra() {

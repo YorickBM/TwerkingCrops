@@ -1,9 +1,14 @@
 package Spigot.TwerkingCrops;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -13,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Consumer;
 
 import Spigot.TwerkingCrops.Materials.EMaterial;
 import Spigot.TwerkingCrops.ActionBar.ActionBar;
@@ -55,9 +61,15 @@ import Spigot.TwerkingCrops.PlayerEvents.PlayerEvents_1_9_ABOVE;
  */
 public class Core extends JavaPlugin {
 	private static Core instance = null;
-	public ActionBar actionBar;
-	public PlayerEvents playerEvents;
-	public BoneMealer boneMealer;
+	private ActionBar _actionBar;
+	private PlayerEvents _playerEvents;
+	private BoneMealer _boneMealer;
+	private LanguageManager _languageManager;
+	
+	public ActionBar GetActionBar() { return _actionBar; }
+	public PlayerEvents GetPlayerEvents() { return _playerEvents; }
+	public BoneMealer GetBonemealer() { return _boneMealer; }
+	public LanguageManager GetLanguageManager() { return _languageManager; }
 	
 	public Permission playerPermission = new Permission("Twerk.use");
 	public Permission staffPermission = new Permission("Twerk.staff");
@@ -84,18 +96,27 @@ public class Core extends JavaPlugin {
 	 * Will run when plugin gets initialized by Spigot/Bukkit
 	 */
 	public void onEnable() {
+		
+		checkVersion(version -> {
+			if(!this.getDescription().getVersion().equalsIgnoreCase(version)) {
+				getLogger().log(Level.WARNING, "You are currently not running the newest version");
+				getLogger().log(Level.WARNING, "Please update to: " + version + " from " + this.getDescription().getVersion());
+			}
+		});
+		
 		getConfig().options().copyDefaults(true);
 	    saveDefaultConfig();
 	    
 		setupNMS();
+		if(!getServer().getPluginManager().isPluginEnabled(this)) return; 
+		
 	    instance = this;
 	    Materials.InitializeMaterials();
 	    TreeTypes.InitializeTreeTypes();
 	    
 	    getServer().getPluginManager().registerEvents(new EventHandlerCustomTimer(), this);
-	    getServer().getPluginManager().registerEvents((Listener) playerEvents, this);
-		//getServer().getLogger().log(Level.WARNING, "DO NOT DISTRIBUTE THIS PLUGIN, it has no complete sourcecode (This plugin is not made to be distributed use only for your self)");
-	    
+	    getServer().getPluginManager().registerEvents((Listener) _playerEvents, this);
+
 	    cfgm = new ConfigManager();
 	    cfgm.seeds();
 	    cfgm.saveSeeds();
@@ -105,6 +126,9 @@ public class Core extends JavaPlugin {
 	    ToolBox.LoadStemsFromConfig();
 	    ToolBox.CheckFuncties();
 	    
+		setupLanguageManager();
+		if(!getServer().getPluginManager().isPluginEnabled(this)) return; 
+	    
 	    CustomTimer timer = new CustomTimer();
 	    timer.startRunnables();
 	    Commands();
@@ -113,11 +137,7 @@ public class Core extends JavaPlugin {
 	    pmp.addPermission(this.playerPermission);
 	    pmp.addPermission(this.staffPermission);
 	    
-	    if(!Core.getInstance().getConfig().getString("Custom.bStats").contentEquals("FALSE")) {
-	    	Metrics metrics = new Metrics(this, 7832);
-	    	if(metrics.isEnabled())
-	    		Bukkit.getLogger().log(Level.INFO, "bStats has been enabled. You can disbale bStats in your Config.yml.");
-	    }
+	    setupbStats();
 	}
 	/*
 	 * Will run when plugin gets disabled by Spigot/Bukkit
@@ -134,11 +154,84 @@ public class Core extends JavaPlugin {
 	/*
 	 * Will Configure Commands
 	 */
-	  public void Commands()
-	  {
-	    getCommand("set").setExecutor(new SetFunctie());
-	    getCommand("set").setTabCompleter(new SetAutoCompleter());
-	  }
+	public void Commands()
+	{
+		getCommand("set").setExecutor(new SetFunctie());
+		getCommand("set").setTabCompleter(new SetAutoCompleter());
+	}
+	  
+	/*
+	 * Setup Version Control
+	 */
+	private void checkVersion(final Consumer<String> consumer) {
+		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+			try(InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=36533").openStream(); Scanner scanner = new Scanner(inputStream)) {
+				
+				if(scanner.hasNext())
+					consumer.accept(scanner.next());
+				
+			} catch (IOException ex) {
+				getLogger().log(Level.WARNING, "Could not look for updates!");
+			}
+		});
+	}
+	
+	/*
+	* Setup bStats
+	*/
+	private void setupbStats() {
+		if(Core.getInstance().getConfig().getString("Custom.bStats").contentEquals("FALSE")) {
+	    	Bukkit.getLogger().log(Level.INFO, "bStats has been disabled. You can enable bStats in your Config.yml. We would advise you to enable it for research purposes.");
+	    		
+	    } else {
+	    	Metrics metrics = new Metrics(this, 7832);
+	    	metrics.addCustomChart(new Metrics.SimplePie("twerking", new Callable<String>() {
+	            @Override
+	            public String call() throws Exception {
+	                return Core.getInstance().getConfig().getString("Custom.Twerking").toLowerCase();
+	            }
+	        }));
+	    	metrics.addCustomChart(new Metrics.SimplePie("customtime", new Callable<String>() {
+	            @Override
+	            public String call() throws Exception {
+	                return Core.getInstance().getConfig().getString("Custom.CustomTime").toLowerCase();
+	            }
+	        }));
+	    	metrics.addCustomChart(new Metrics.SimplePie("particles", new Callable<String>() {
+	            @Override
+	            public String call() throws Exception {
+	                return Core.getInstance().getConfig().getString("Custom.Particles").toLowerCase();
+	            }
+	        }));
+	    	metrics.addCustomChart(new Metrics.SimplePie("randomizer", new Callable<String>() {
+	            @Override
+	            public String call() throws Exception {
+	                return Core.getInstance().getConfig().getString("Custom.Randomizer").toLowerCase();
+	            }
+	        }));
+	    	metrics.addCustomChart(new Metrics.SimplePie("twerkpersecond", new Callable<String>() {
+	            @Override
+	            public String call() throws Exception {
+	                return Core.getInstance().getConfig().getString("Custom.TwerkPerSecond").toLowerCase();
+	            }
+	        }));
+	    }
+	}
+	
+	/*
+	 * Loads correct language file into the system
+	 */
+	private void setupLanguageManager() {
+		_languageManager = new LanguageManager();
+		if(_languageManager.load(this, getConfig().getString("Custom.Language"))) {
+			Core.getInstance().getLogger().log(Level.INFO, "Successfully set language to " + getConfig().getString("Custom.Language"));
+		} else {		
+			Core.getInstance().getLogger().log(Level.SEVERE, "Failed to set language to " + getConfig().getString("Custom.Language"));
+			Core.getInstance().getLogger().log(Level.SEVERE, "Please select a lanuage file that existis! (Plugin has been disabled)");
+			getServer().getPluginManager().disablePlugin(this);
+		}
+		Core.getInstance().Functions.add("Language");
+	}
 	
 	/*
 	 * Will Implement Correct Classes and Imports to let 
@@ -168,7 +261,7 @@ public class Core extends JavaPlugin {
 	          return false;
 	      }
 		
-		boneMealer = new BoneMealer();
+		_boneMealer = new BoneMealer();
 
 	      getLogger().info("Your server is running version " + version);
 	      boolean NMS = true;
@@ -183,96 +276,52 @@ public class Core extends JavaPlugin {
 	    	  actionBar = new ActionBar_1_11_B();
 	    	  playerEvents = new PlayerEvents_1_8();
 	      } else */if (version.equals("v1_9_R2")) {
-	    	  actionBar = new ActionBar_1_11_B();
-	    	  playerEvents = new PlayerEvents_1_9_ABOVE();
+	    	  _actionBar = new ActionBar_1_11_B();
+	    	  _playerEvents = new PlayerEvents_1_9_ABOVE();
 	      } else if (version.equals("v1_10_R1")) {
-	    	  actionBar = new ActionBar_1_11_B();
-	    	  playerEvents = new PlayerEvents_1_9_ABOVE();
+	    	  _actionBar = new ActionBar_1_11_B();
+	    	  _playerEvents = new PlayerEvents_1_9_ABOVE();
 	      } else if (version.equals("v1_11_R1")) {
-	    	  actionBar = new ActionBar_1_11_B();
-	    	  playerEvents = new PlayerEvents_1_9_ABOVE();
+	    	  _actionBar = new ActionBar_1_11_B();
+	    	  _playerEvents = new PlayerEvents_1_9_ABOVE();
 	      } else if (version.equals("v1_12_R1")) {
-	    	  playerEvents = new PlayerEvents_1_9_ABOVE();
-	    	  actionBar = new ActionBar_1_12_A();
+	    	  _playerEvents = new PlayerEvents_1_9_ABOVE();
+	    	  _actionBar = new ActionBar_1_12_A();
 	      } else if (version.equals("v1_13_R1")) {
 	    	  Materials.InitExtra();
-	    	  playerEvents = new PlayerEvents_1_13();
-	    	  actionBar = new ActionBar_1_12_A();
+	    	  _playerEvents = new PlayerEvents_1_13();
+	    	  _actionBar = new ActionBar_1_12_A();
 	      } else if (version.equals("v1_13_R2")) {
 	    	  Materials.InitExtra();
-	    	  playerEvents = new PlayerEvents_1_13();
-	    	  actionBar = new ActionBar_1_12_A();
+	    	  _playerEvents = new PlayerEvents_1_13();
+	    	  _actionBar = new ActionBar_1_12_A();
 	      } else if (version.equals("v1_14_R1")) {
 	    	  Materials.InitExtra();
-	    	  playerEvents = new PlayerEvents_1_13();
-	    	  actionBar = new ActionBar_1_12_A();
+	    	  _playerEvents = new PlayerEvents_1_13();
+	    	  _actionBar = new ActionBar_1_12_A();
 	      } else if (version.equals("v1_15_R1")) {
 	    	  Materials.InitExtra();
-	    	  playerEvents = new PlayerEvents_1_13();
-	    	  actionBar = new ActionBar_1_12_A();
+	    	  _playerEvents = new PlayerEvents_1_13();
+	    	  _actionBar = new ActionBar_1_12_A();
 	      } else if (version.equals("v1_16_R1")) {
 	    	  Materials.InitExtra();
-	    	  playerEvents = new PlayerEvents_1_13();
-	    	  actionBar = new ActionBar_1_16_A();
+	    	  _playerEvents = new PlayerEvents_1_13();
+	    	  _actionBar = new ActionBar_1_16_A();
 	      } else if (version.equals("v1_16_R2")) {
 	    	  Materials.InitExtra();
-	    	  playerEvents = new PlayerEvents_1_13();
-	    	  actionBar = new ActionBar_1_16_A();
+	    	  _playerEvents = new PlayerEvents_1_13();
+	    	  _actionBar = new ActionBar_1_16_A();
 	      } else if (version.equals("v1_16_R3")) {
 	    	  Materials.InitExtra();
-	    	  playerEvents = new PlayerEvents_1_13();
-	    	  actionBar = new ActionBar_1_16_A();
+	    	  _playerEvents = new PlayerEvents_1_13();
+	    	  _actionBar = new ActionBar_1_16_A();
+	      } else if (version.contains("v1_17_")) { //Speculation
+	    	  Materials.InitExtra();
+	    	  _playerEvents = new PlayerEvents_1_13();
+	    	  _actionBar = new ActionBar_1_16_A();
 	      } else {
 	    	  NMS = false;
 	      }
 	      return NMS;
 	}
-	
-	/*
-	 * Puts correct crops into Crops list corresponding to your server version
-	 
-	  public void initLists(String version)
-	  {		  
-		  Materials.InitializeMaterials(); //Adds support for EVERY Material!
-		  
-		  //CropsPlaceholder.add(Material.SAPLING);
-		  //CropsPlaceholder.add(Material.SEEDS);
-		  CropsPlaceholder.add(Material.POTATO);
-		  CropsPlaceholder.add(Material.CARROT);
-		  CropsPlaceholder.add(Material.MELON_STEM);
-		  CropsPlaceholder.add(Material.PUMPKIN_STEM);
-		  CropsPlaceholder.add(Material.GRASS);
-		  CropsPlaceholder.add(Material.SUGAR_CANE);
-		  CropsPlaceholder.add(Material.CACTUS);
-		  CropsPlaceholder.add(Material.BROWN_MUSHROOM);
-		  CropsPlaceholder.add(Material.RED_MUSHROOM);
-		  
-		  if (version.equals("v1_9_R2")) {
-			  CropsPlaceholder.add(Material.BEETROOT_SEEDS);
-	      } else if (version.equals("v1_10_R1")) {
-	    	  CropsPlaceholder.add(Material.BEETROOT_SEEDS);
-	      } else if (version.equals("v1_11_R1")) {
-	    	  CropsPlaceholder.add(Material.BEETROOT_SEEDS);
-	      } else if (version.equals("v1_12_R1")) {
-	    	  CropsPlaceholder.add(Material.BEETROOT_SEEDS);
-	      } else if (version.equals("v1_13_R1")) {
-	    	  CropsPlaceholder.add(Material.BEETROOT_SEEDS);
-	      } else if (version.equals("v1_13_R2")) {
-	    	  CropsPlaceholder.add(Material.BEETROOT_SEEDS);
-	      } else if (version.equals("v1_14_R1")) {
-	    	  CropsPlaceholder.add(Material.BEETROOT_SEEDS);
-	      } else if (version.equals("v1_15_R1")) {
-	    	  CropsPlaceholder.add(Material.BEETROOT_SEEDS);
-	      }
-		  
-		  List<String> cropsFromConfig = getConfig().getStringList("Crops");
-		  for(String str : cropsFromConfig) {
-			  Material matr = Material.getMaterial(str);
-			  if(CropsPlaceholder.contains(matr))
-					  Crops.add(matr);
-			  else
-				  getLogger().log(Level.WARNING, "Material not supported: " + str + ".");
-		  }
-	  }
-	  */
 }

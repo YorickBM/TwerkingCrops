@@ -1,6 +1,6 @@
 name: Twerking-Crops
 main: Spigot.TwerkingCrops.Core
-version: 9.1
+version: 9.2
 api-version: 1.13
 commands:
    set:

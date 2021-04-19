@@ -9,31 +9,9 @@ Custom:
    Particles: 'TRUE'
    Randomizer: 'TRUE'
    TwerkPerSecond: 'FALSE'
-   DisableBoneMeal: 'FALSE'
    bStats: 'TRUE'
    TwerkRange: 3
-   
-Messages:
-    Set:
-      NoPerms: '&5&lTwerking Crops → &7Whoops, you don''t have the permission to do this!'
-      Error: '&5&lTwerking Crops → &7Use /set <%Functions%> <True/False>'
-      Bool: '&5&lTwerking Crops → &7Use /set %Func% <True/False>'
-      Func: '&5&lTwerking Crops → &7`%Func%` is not an valid Function use `%Functions%`'
-      Succes: '&5&lTwerking Crops → &7You succesfully set %Func% to %Bool%'
-      NotAble: '&5&lTwerking Crops → &7You can''t set %Func% to %Bool% because %Reason%'
-    Book:
-      NoPerms: '&5&lTwerking Crops → &7Whoops, you don''t have the permission to do this!'
-      Error: '&5&lTwerking Crops → &7Use /book <%Enchantments%> <1/2/3>'
-      Level: '&5&lTwerking Crops → &7Use /book %Enchant% <1/2/3>'
-      Enchant: '&5&lTwerking Crops → &7`%Enchant%` is not an valid Enchantment use `%Enchantments%`'
-      Succes: '&5&lTwerking Crops → &7You have succefully got %Enchant% %Level%'
-      PlayerOnly: '&5&lTwerking Crops → &7Only players can use this command!'
-    TwerkingPerSecond:
-      Shifting: '* You are &nshifting&r at &5&n%ShiftingRate% Shifts Per Second *'
-    Runnables:
-      NoPerms: '&5&lTwerking Crops → &7Whoops, you don''t have the permission to do this!'
-      Failed: '&5&lTwerking Crops → &7Could not restart all Bukkit Runnables, Use /reload to hard restart'
-      Succes: '&5&lTwerking Crops → &7You succesfully restarted all Bukkit Runnables, Yay!'
+   Language: EN
 
 CustomTime: #Seed name in CAPS Example, BEET_ROOTS, WHEAT & Value afther seed is the delay before the crop gets bonemealed once (In seconds)
    CARROT: 10

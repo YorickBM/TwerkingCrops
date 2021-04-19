@@ -2,13 +2,8 @@ package Spigot.TwerkingCrops;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
-import org.bukkit.Location;
 import org.bukkit.TreeType;
-import org.bukkit.block.Block;
-
-import Spigot.TwerkingCrops.Materials.EMaterial;
 
 public class TreeTypes {
 	
@@ -76,7 +71,8 @@ public class TreeTypes {
 		return TreeType.valueOf(TreeTypeByType.get(type).get(0));
 	}
 
-	public static boolean spawnFungus(Location location, ETreeType fungusType) {
+	/* Custom Fungus Gen (Not finished)
+	 * public static boolean spawnFungus(Location location, ETreeType fungusType) {
 
 		int maxFree = 8;
 		//if(!FreeSpace(location, 8, maxFree)) return false;
@@ -116,6 +112,7 @@ public class TreeTypes {
 			}
 		}
 	}
+	
 	private static void replace(Block block, EMaterial blockType, boolean AirOnly) {
 		if(!AirOnly) { 
 			Materials.SetType(block, blockType);
@@ -124,6 +121,6 @@ public class TreeTypes {
 		} else {
 			System.out.println("Not air!");
 		}
-	}
+	}*/
 
 }
