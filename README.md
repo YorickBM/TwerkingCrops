@@ -1,7 +1,7 @@
 # TwerkingCrops
 Please do not download this plugin from GitHub. This resource can be downloaded from: https://www.spigotmc.org/resources/twerking-crops.36533/
 You are **not** allowed to use any classes for yourself without permission! The code is public for the people that want to give a more specific error location.
-Or want to suggest improvements for the resource self.
+Or want to suggest improvements for the resource self. This repository is strictly for educational purposes.
 
 ## Available Commands
 All the available commands are listed down below with the needed
