@@ -2,8 +2,6 @@ package Spigot.TwerkingCrops;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,32 +19,9 @@ public class LanguageManager {
 	public boolean load(Core core, String lang) {
 		
 		File dir = new File(core.getDataFolder() + "/lang/", "");
-		if(!dir.exists()) dir.mkdir();
+		if(!dir.exists()) return false; //path not found
+		
 		File file = new File(dir.getPath(), lang + ".local");
-		if(lang.equalsIgnoreCase("EN") && !file.exists()) { //Create default EN locale
-			try {
-				file.createNewFile();
-				
-				FileWriter myWriter = new FileWriter(file);
-				myWriter.write(
-						"Set.NoPerms=&5&lTwerking Crops → &7Whoops, you don''t have the permission to do this!\r\n" + 
-						"Set.Error=&5&lTwerking Crops → &7Use /set <%Functions%> <True/False> OR <%Langs%>\r\n" + 
-						"Set.Bool=&5&lTwerking Crops → &7Use /set %Func% <True/False>\r\n" + 
-						"Set.Lang=&5&lTwerking Crops → &7Use /set %Func% <%Langs%>\r\n" + 
-						"Set.Func=&5&lTwerking Crops → &7`%Func%` is not an valid Function use `%Functions%`\r\n" + 
-						"Set.Succes=&5&lTwerking Crops → &7You succesfully set %Func% to %Result%\r\n" + 
-						"Set.NotAble=&5&lTwerking Crops → &7You can''t set %Func% to %Result% because %Reason%\r\n" + 
-						"\r\n" + 
-						"TwerkingPerSecond.Shifting=* You are &nshifting&r at &5&n%ShiftingRate% Shifts Per Second *\r\n" + 
-						"\r\n" + 
-						"Runnables.NoPerms=&5&lTwerking Crops → &7Whoops, you don''t have the permission to do this!\r\n" + 
-						"Runnables.Failed=&5&lTwerking Crops → &7Could not restart all Bukkit Runnables, Use /reload to hard restart\r\n" + 
-						"Runnables.Succes=&5&lTwerking Crops → &7You succesfully restarted all Bukkit Runnables!"
-						);
-				myWriter.close();
-			} catch (IOException e) {
-			}
-		}
 		
 		try {
 			Scanner myReader = new Scanner(file);

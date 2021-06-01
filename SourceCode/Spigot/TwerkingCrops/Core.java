@@ -1,11 +1,14 @@
 package Spigot.TwerkingCrops;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -42,18 +45,18 @@ import Spigot.TwerkingCrops.PlayerEvents.PlayerEvents_1_9_ABOVE;
  * 8.1
  * -> Pumpkin with face fix 1.13+ (Set it by mine craft ID not material type) 
  * -> Fix performance issues custom crop grow timer (Complete Redo needed)
- * -> Block break Event & Sneak event optimized ✓ 
- * -> 1.16 support ✓  (Actionbar only spigot?!?!?)
+ * -> Block break Event & Sneak event optimized âœ“ 
+ * -> 1.16 support âœ“  (Actionbar only spigot?!?!?)
  * -> Nether items that are bonemeal affected added
  * -> Mushrooms added
- * -> Custom Materials System ✓
+ * -> Custom Materials System âœ“
  * --> Applying patricles & bonemeal acting strange
  * 
  * 8.0
- * -> Sugar cane & Cactus Support ✓
- * -> 1.13 & 1.14 & 1.15 support ✓
- * -> Air platforms allowed ✓
- * -> Pumpkin & Melon can't force grow on air anymore ✓
+ * -> Sugar cane & Cactus Support âœ“
+ * -> 1.13 & 1.14 & 1.15 support âœ“
+ * -> Air platforms allowed âœ“
+ * -> Pumpkin & Melon can't force grow on air anymore âœ“
  */
 
 /*
@@ -73,6 +76,7 @@ public class Core extends JavaPlugin {
 	
 	public Permission playerPermission = new Permission("Twerk.use");
 	public Permission staffPermission = new Permission("Twerk.staff");
+	public Permission noRandomizerPermission = new Permission("Twerk.noRandomizer");
 	
 	public String version;
 	public ConfigManager cfgm;
@@ -96,14 +100,6 @@ public class Core extends JavaPlugin {
 	 * Will run when plugin gets initialized by Spigot/Bukkit
 	 */
 	public void onEnable() {
-		
-		checkVersion(version -> {
-			if(!this.getDescription().getVersion().equalsIgnoreCase(version)) {
-				getLogger().log(Level.WARNING, "You are currently not running the newest version");
-				getLogger().log(Level.WARNING, "Please update to: " + version + " from " + this.getDescription().getVersion());
-			}
-		});
-		
 		getConfig().options().copyDefaults(true);
 	    saveDefaultConfig();
 	    
@@ -126,7 +122,11 @@ public class Core extends JavaPlugin {
 	    ToolBox.LoadStemsFromConfig();
 	    ToolBox.CheckFuncties();
 	    
+	    generateLanguageFiles();
 		setupLanguageManager();
+		Core.getInstance().Functions.add("TwerkRange");
+		Core.getInstance().Functions.add("Randomizer");
+		
 		if(!getServer().getPluginManager().isPluginEnabled(this)) return; 
 	    
 	    CustomTimer timer = new CustomTimer();
@@ -136,9 +136,11 @@ public class Core extends JavaPlugin {
 	    PluginManager pmp = getServer().getPluginManager();
 	    pmp.addPermission(this.playerPermission);
 	    pmp.addPermission(this.staffPermission);
+	    pmp.addPermission(this.noRandomizerPermission);
 	    
 	    setupbStats();
 	}
+	
 	/*
 	 * Will run when plugin gets disabled by Spigot/Bukkit
 	 */
@@ -163,7 +165,7 @@ public class Core extends JavaPlugin {
 	/*
 	 * Setup Version Control
 	 */
-	private void checkVersion(final Consumer<String> consumer) {
+	public void checkVersion(final Consumer<String> consumer) {
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 			try(InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=36533").openStream(); Scanner scanner = new Scanner(inputStream)) {
 				
@@ -185,12 +187,26 @@ public class Core extends JavaPlugin {
 	    		
 	    } else {
 	    	Metrics metrics = new Metrics(this, 7832);
-	    	metrics.addCustomChart(new Metrics.SimplePie("twerking", new Callable<String>() {
-	            @Override
-	            public String call() throws Exception {
-	                return Core.getInstance().getConfig().getString("Custom.Twerking").toLowerCase();
+	    	metrics.addCustomChart(new Metrics.DrilldownPie("languages", () -> {
+	            Map<String, Map<String, Integer>> map = new HashMap<>();
+	            Map<String, Integer> entry = new HashMap<>();
+	            String lang = getConfig().getString("Custom.Language");
+	            entry.put(lang, 1);
+	            
+	            if (lang.startsWith("EN") || lang.endsWith("EN")) {
+	                map.put("English", entry);
+	            }  else if (lang.startsWith("NL") || lang.endsWith("NL")) {
+	                map.put("Dutch", entry);
+	            } else if (lang.startsWith("FR") || lang.endsWith("FR")) {
+	                map.put("French", entry);
+	            } else if (lang.startsWith("DE") || lang.endsWith("DE")) {
+	                map.put("German", entry);
+	            } else {
+	                map.put("Other", entry);
 	            }
+	            return map;
 	        }));
+	    	
 	    	metrics.addCustomChart(new Metrics.SimplePie("customtime", new Callable<String>() {
 	            @Override
 	            public String call() throws Exception {
@@ -206,7 +222,7 @@ public class Core extends JavaPlugin {
 	    	metrics.addCustomChart(new Metrics.SimplePie("randomizer", new Callable<String>() {
 	            @Override
 	            public String call() throws Exception {
-	                return Core.getInstance().getConfig().getString("Custom.Randomizer").toLowerCase();
+	            	return Core.getInstance().getConfig().getString("Custom.Randomizer").toLowerCase() + "%";
 	            }
 	        }));
 	    	metrics.addCustomChart(new Metrics.SimplePie("twerkpersecond", new Callable<String>() {
@@ -216,6 +232,98 @@ public class Core extends JavaPlugin {
 	            }
 	        }));
 	    }
+	}
+	
+	/*
+	 * Load all pre translated language files
+	 */
+	private void generateLanguageFiles() {
+		File dir = new File(getDataFolder() + "/lang/", "");
+		if(!dir.exists()) dir.mkdir();
+		
+		//Generate the Paths
+		File langEN = new File(dir.getPath(), "EN.local");
+		File langNL = new File(dir.getPath(), "NL.local");
+		//File langDE = new File(dir.getPath(), "DE.local");
+		//File langFR = new File(dir.getPath(), "FR.local");
+		
+		//Generate The Files
+		if(!langEN.exists()) { //Create default EN locale
+			try {
+				langEN.createNewFile();
+				
+				FileWriter myWriter = new FileWriter(langEN);
+				myWriter.write(
+						"Set.NoPerms=&5&lTwerking Crops → &7Whoops, you don''t have the permission to do this!\r\n" + 
+						"Set.Error=&5&lTwerking Crops → &7Use /set <%Functions%> <value>\r\n" + 
+						"Set.Error.Bool=&5&lTwerking Crops → &7Use /set %Func% <True/False>\r\n" + 
+						"Set.Error.Lang=&5&lTwerking Crops → &7Use /set %Func% <%Langs%>\r\n" + 
+						"Set.Error.Number=&5&lTwerking Crops → &7Use /set %Func% <0-9+>\r\n" + 
+						"Set.Error.Func=&5&lTwerking Crops → &7`%Func%` is not an valid Function, use: `%Functions%`\r\n" + 
+						"Set.Succes=&5&lTwerking Crops → &7You succesfully set %Func% to %Result%\r\n" + 
+						"Set.NotAble=&5&lTwerking Crops → &7You can''t set %Func% to %Result% because %Reason%\r\n" + 
+						"\r\n" + 
+						"TwerkingPerSecond.Shifting=* You are &ntwerking&r at &5&n%ShiftingRate% per second *\r\n" + 
+						"\r\n" + 
+						"Runnables.NoPerms=&5&lTwerking Crops → &7Whoops, you don''t have the permission to do this!\r\n" + 
+						"Runnables.Failed=&5&lTwerking Crops → &7Could not restart all Bukkit Runnables, Use /reload to hard restart\r\n" + 
+						"Runnables.Succes=&5&lTwerking Crops → &7You succesfully restarted all Bukkit Runnables!"
+						);
+				myWriter.close();
+			} catch (IOException e) {
+			}
+		}
+		//if(!langDE.exists()) { //Create default DE locale
+			//try {
+				//langDE.createNewFile();
+				
+				//FileWriter myWriter = new FileWriter(langDE);
+				//myWriter.write(
+				//		"Set.NoPerms=&5&lTwerking Crops â†’ &7Whoops, you don''t have the permission to do this!\r\n" + 
+				//		"Set.Error=&5&lTwerking Crops â†’ &7Use /set <%Functions%> <value>\r\n" + 
+				//		"Set.Error.Bool=&5&lTwerking Crops â†’ &7Use /set %Func% <True/False>\r\n" + 
+				//		"Set.Error.Lang=&5&lTwerking Crops â†’ &7Use /set %Func% <%Langs%>\r\n" + 
+				//		"Set.Error.Number=&5&lTwerking Crops â†’ &7Use /set %Func% <0-9+>\r\n" + 
+				//		"Set.Error.Func=&5&lTwerking Crops â†’ &7`%Func%` is not an valid Function, use: `%Functions%`\r\n" + 
+				//		"Set.Succes=&5&lTwerking Crops â†’ &7You succesfully set %Func% to %Result%\r\n" + 
+				//		"Set.NotAble=&5&lTwerking Crops â†’ &7You can''t set %Func% to %Result% because %Reason%\r\n" + 
+				//		"\r\n" + 
+				//		"TwerkingPerSecond.Shifting=* You are &ntwerking&r at &5&n%ShiftingRate% per second *\r\n" + 
+				//		"\r\n" + 
+				//		"Runnables.NoPerms=&5&lTwerking Crops â†’ &7Whoops, you don''t have the permission to do this!\r\n" + 
+				//		"Runnables.Failed=&5&lTwerking Crops â†’ &7Could not restart all Bukkit Runnables, Use /reload to hard restart\r\n" + 
+				//		"Runnables.Succes=&5&lTwerking Crops â†’ &7You succesfully restarted all Bukkit Runnables!"
+				//		);
+				//myWriter.close();
+			//} catch (IOException e) {
+			//}
+		//}
+		if(!langNL.exists()) { //Create default NL locale
+			try {
+				langNL.createNewFile();
+				
+				FileWriter myWriter = new FileWriter(langNL);
+				myWriter.write(
+						"Set.NoPerms=&5&lTwerking Crops → &7Whoops, je hebt niet de bevoegdheid om dit uit te voeren!\r\n" + 
+						"Set.Error=&5&lTwerking Crops → &7Gebruik /set <%Functions%> <waarden>\r\n" + 
+						"Set.Error.Bool=&5&lTwerking Crops → &7Gebruik /set %Func% <True/False>\r\n" + 
+						"Set.Error.Lang=&5&lTwerking Crops → &7Gebruik /set %Func% <%Langs%>\r\n" + 
+						"Set.Error.Number=&5&lTwerking Crops → &7Gebruik /set %Func% <0-9+>\r\n" + 
+						"Set.Error.Func=&5&lTwerking Crops → &7`%Func%` is niet gevonden, gebruik: `%Functions%`\r\n" + 
+						"Set.Succes=&5&lTwerking Crops → &7Succesvol %Func% gezet naar %Result%\r\n" + 
+						"Set.NotAble=&5&lTwerking Crops → &7Je kunt %Func% niet naar %Result% zetten, want %Reason%\r\n" + 
+						"\r\n" + 
+						"TwerkingPerSecond.Shifting=* Je bent &5&n%ShiftingRate% keer per seconde aan het &ntwerken&r *\r\n" + 
+						"\r\n" + 
+						"Runnables.NoPerms=&5&lTwerking Crops → &7Whoops, je hebt niet de bevoegdheid om dit te doen!\r\n" + 
+						"Runnables.Failed=&5&lTwerking Crops → &7We kunnen niet alle Bukkit Runnables herstarten, gebruik /reload voor een hard reload!\r\n" + 
+						"Runnables.Succes=&5&lTwerking Crops → &7We hebben succesvol alle Bukkit Runnables herstart!"
+						);
+				myWriter.close();
+			} catch (IOException e) {
+			}
+		}
+		
 	}
 	
 	/*

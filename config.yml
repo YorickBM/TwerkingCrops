@@ -7,7 +7,7 @@ Custom:
    Twerking: 'TRUE'
    CustomTime: 'FALSE'
    Particles: 'TRUE'
-   Randomizer: 'TRUE'
+   Randomizer: 20
    TwerkPerSecond: 'FALSE'
    bStats: 'TRUE'
    TwerkRange: 3

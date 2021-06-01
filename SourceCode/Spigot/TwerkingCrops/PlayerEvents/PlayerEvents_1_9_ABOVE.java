@@ -21,15 +21,12 @@ import Spigot.TwerkingCrops.Core;
 import Spigot.TwerkingCrops.Materials;
 import Spigot.TwerkingCrops.ToolBox;
 import Spigot.TwerkingCrops.Materials.EMaterial;
+import io.netty.util.internal.ThreadLocalRandom;
 
 /*
  * Created by Yorick, Last modified on: 12-06-2020
  */
 public class PlayerEvents_1_9_ABOVE implements Listener, PlayerEvents {
-	private int randomN = 0;
-	private int succes = 0;
-	private int EnchLevel = 0;
-	private Random random = new Random();
 	private Random randomSC = new Random();
 	
 	@EventHandler
@@ -59,7 +56,7 @@ public class PlayerEvents_1_9_ABOVE implements Listener, PlayerEvents {
           yOffset++;
         }
 
-        int ConfigRange = Core.getInstance().getConfig().getInt("Custom.TwerkRange");
+        int ConfigRange = Integer.parseInt(Core.getInstance().getConfig().getString("Custom.TwerkRange"));
         int FinalRange = (int) ConfigRange / 2;
       
         for (int x = -FinalRange; x < FinalRange + 1; x++) {
@@ -72,29 +69,10 @@ public class PlayerEvents_1_9_ABOVE implements Listener, PlayerEvents {
         }
 
         //Apply Random Effect
-        if (ToolBox.checkFunctionState("Randomizer"))
-        {
-          if (EnchLevel == 0) {
-            succes = random.nextInt(5);
-            randomN = 4;
-          }
-          if (EnchLevel == 1) {
-            succes = random.nextInt(4);
-            randomN = 3;
-          }
-          if (EnchLevel == 2) {
-            succes = random.nextInt(3);
-            randomN = 2;
-          }
-          if (EnchLevel == 3) {
-            succes = random.nextInt(2);
-            randomN = 1;
-          }
-          if (succes < randomN) {
-            return;
-          }
-        }
+        float random = ThreadLocalRandom.current().nextFloat();
+        if(!player.hasPermission("Twerk.noRandomizer") && random >= (Float.parseFloat(Core.getInstance().getConfig().getString("Custom.Randomizer")) / 100)) return;
 
+        //Run the event
         SeedsInRange.stream().forEach(s -> CheckSeed(s));
 	}
 

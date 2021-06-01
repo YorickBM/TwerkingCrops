@@ -61,6 +61,7 @@ public class BoneMealer {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public boolean applyBoneMeal(Block block) {
 		
         if (Materials.IsSimilar(block, EMaterial.Sapling)) {  
@@ -174,6 +175,17 @@ public class BoneMealer {
         				}
         			}
         			break;
+        			
+        		//case Warped_Fungus:
+        		//	if(Materials.SetType(block, EMaterial.Air)) {
+        		//		block.getLocation().getWorld().generateTree(block.getLocation(), TreeType.WARPED_FUNGUS);
+        		//		if(Materials.IsSimilar(block, EMaterial.Air)) {
+        		//			Materials.SetTree(block, EMaterial.Warped_Fungus, ETreeType.Warped_Fungs);
+        		//			System.out.println("FUNGUS REPLACED");
+        		//		}
+        		//		return true;
+        		//	}
+        		//	break;
         	
         		default:
         			//System.out.println("Tree Type Not Supported: " + Materials.TypeConverter(block) + " (" + Materials.GetType(block) + ")");

@@ -99,6 +99,7 @@ public class ToolBox {
 	      Core.getInstance().saveConfig();
 	    }
 	  }
+	  
 	  public static String cc(String msg)
 	  {
 	    String Functions = "";
@@ -220,7 +221,6 @@ public class ToolBox {
 		  addFunction("Twerking", "Custom.Twerking", "TRUE");
 		  addFunction("CustomTime", "Custom.CustomTime", "TRUE");
 		  addFunction("Particles", "Custom.Particles", "TRUE");
-		  addFunction("Randomizer", "Custom.Randomizer", "TRUE");
 		  addFunction("TwerkPerSecond", "Custom.TwerkPerSecond", "TRUE");
 	  }	  
 	  public static boolean checkFunctionState(String Function) {

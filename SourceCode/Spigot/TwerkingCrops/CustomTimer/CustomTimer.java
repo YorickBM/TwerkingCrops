@@ -17,14 +17,17 @@ import Spigot.TwerkingCrops.ToolBox;
  */
 public class CustomTimer {
 	
-	boolean reload = false;
+	boolean reloadTwerk, reloadCrops = false;
 	
 	private void TwerkPerSecond() {
 		new BukkitRunnable()
 	      {
 	        public void run()
 	        {
-	        	if(reload) this.cancel();
+	        	if(reloadTwerk) {
+	        		this.cancel();
+	        		reloadTwerk = false;
+	        	}
 	        	if(ToolBox.checkFunctionState("TwerkPerSecond")) {
 	        	 for (Player p : Bukkit.getOnlinePlayers()) {
 	        		 if(Core.getInstance().TwerkData.get(p.getUniqueId()) != null) {
@@ -54,7 +57,10 @@ public class CustomTimer {
 	      {
 	        public void run()
 	        {
-	        	if(reload) this.cancel();
+	        	if(reloadCrops) {
+	        		this.cancel();
+	        		reloadCrops = false;
+	        	}
 	        	if(ToolBox.checkFunctionState("CustomTime")) {
 	        	 
 	        		if(wheat >= Core.getInstance().getConfig().getInt("CustomTime.SEEDS")) {
@@ -83,10 +89,29 @@ public class CustomTimer {
 	      }.runTaskTimer(JavaPlugin.getPlugin(Core.class), 0L, 20);
 	}
 	
+	
+	public void VersionControl() {
+		new BukkitRunnable()
+	      {
+	        public void run()
+	        {
+	        	Core.getInstance().checkVersion(version -> {
+					if(!Core.getInstance().getDescription().getVersion().equalsIgnoreCase(version)) {
+						Core.getInstance().getLogger().log(Level.WARNING, "You are currently not running the newest version");
+						Core.getInstance().getLogger().log(Level.WARNING, "Please update to: " + version + " from " + Core.getInstance().getDescription().getVersion());
+					}
+				});
+	        }
+	      }.runTaskTimer(JavaPlugin.getPlugin(Core.class), 0L, 86400 * 20);
+	}
+	
 	public void startRunnables()
 	{
 		//Twerking Per Second Function
 		TwerkPerSecond();
+		
+		//Version Control Every Day (For long term running servers)
+		VersionControl();
 		
 		//CropTimer
 		CropTimer();
@@ -101,11 +126,20 @@ public class CustomTimer {
 		}
 		return true;
 	}
+	
 	public void ReloadRunnables() {
-		reload = true;
+		reloadCrops = true;
+		reloadTwerk = true;		
 		Core.getInstance().getLogger().log(Level.WARNING, "Restarting ALL bukkit runnables from Twerking-Crops");
-		reload = false;
 		
-		startRunnables();
+		new BukkitRunnable()
+	      {
+	        public void run()
+	        {
+	        	while(reloadCrops || reloadTwerk) return;
+	        	startRunnables();
+	        	this.cancel();
+	        }
+	      }.runTaskTimer(JavaPlugin.getPlugin(Core.class), 0L, 40);
 	}
 }
