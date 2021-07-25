@@ -39,6 +39,8 @@ public class PlayerEvents_1_9_ABOVE implements Listener, PlayerEvents {
 			return;
 		if (!player.hasPermission("Twerk.use"))
 			return;
+		if(Core.getInstance().GetWorldBlacklist().IsBlacklisted(player.getLocation().getWorld().getName()))
+			return;
 		if(Materials.IsSimilar(player.getLocation().clone().add(0, -1, 0).getBlock(), EMaterial.Air) && !Materials.IsSimilar(player.getLocation().getBlock(), EMaterial.Soil))
 			return;
 		if (!player.isSneaking())

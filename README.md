@@ -9,7 +9,7 @@ permission to use this command, also a small description is provided
 for each command.
 
 /set <GrowthTimer/Twerking/Particles/...> <True/False/...> (This command provides an function to set specified functions to true/false while In-Game, they instantly Update!)
-
+/blacklist <crop/world> <add/remove/list> [value]
 
 ## Features:
 Currently, the plugin provides a function that allows you to grow crops faster with Twerking, twerk in a 3 block radius of your crops and an Area of 3x3 (Your the Middle Point) Will be Bonemealed, Particle effects on the crops will show you which one has been effected!
@@ -17,8 +17,9 @@ There is also a Custom Growth Timer, with this function you can set a specified 
 The Randomizer will give a special functionality for a better experience, instead of always having Succes (Crops getting BoneMealed) this function will give it by default a 20% chance.
 Both the Randomizer value and the block radius can be configured in-game or in the configuration file.
 
-- Twerking for Crops/Trees/Cactus/Sugarcane/Mushrooms/Melons/Pumpkins
+- Twerking for Crops/Trees/Cactus/Sugarcane/Mushrooms/Melons/Pumpkins/etc
 - Set Command to set Functions True or False
+- Blacklist Command to blacklist certain worlds or crops
 - Growth Timer for custom growing Times per Crop
 - Bonemeal Particles on the crops that are affected
 - Randomizer so not every twerk is successful (20% Chance by default)

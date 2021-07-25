@@ -21,10 +21,11 @@ import Spigot.TwerkingCrops.TreeTypes.ETreeType;
 
 @SuppressWarnings("deprecation")
 public class Materials {
-	public static enum EMaterial {Air, Bone_Meal, Sea_Grass, Sea_Pickle, Soil, Pumpkin, Pumpkin_Stem, 
+	public static enum EMaterial {Air, Water, Bone_Meal, Sea_Grass, Sea_Pickle, Soil, Pumpkin, Pumpkin_Stem, 
 		Melon, Melon_Stem, Wheat_Seeds, Carrot, Potato, Grass, Sugar_Cane, Cactus, Brown_Mushroom, Red_Mushroom, Beetroot_Seeds, 
 		Oak_Sapling, Dark_Oak_Sapling, Spruce_Sapling, Jungle_Sapling, Birch_Sapling, Acacia_Sapling, Sapling,
-		Warped_Fungus, Crimson_Fungus}
+		Warped_Fungus, Crimson_Fungus, Fern, Bamboo, Kelp, Tall_Grass, Tall_Fern, Cocoa_Beans, Sweet_Berry_Bush, 
+		Weeping_Vines, Twisting_Vines, Azalea_Bush, Cave_Vines, Flowering_Azalea, Azalea}
 	
 	private static HashMap<String, EMaterial> MaterialByType = new HashMap<String, EMaterial>();
 	private static HashMap<String, EMaterial> TreeTypesL = new HashMap<String, EMaterial>();
@@ -120,7 +121,6 @@ public class Materials {
 						return placed;
 					}catch(Exception ex) {
 						placed = false;
-						System.out.println("Catched!");
 					}
 				}
 			}
@@ -132,87 +132,81 @@ public class Materials {
 		return placed;
 	}
 	
+	private static void registerMaterial(EMaterial material, String...aliases) {
+		for(String alias : aliases) {
+			MaterialByType.put(alias, material);
+		}
+	}
+	private static void registerTreeSpecies(EMaterial material, String...aliases) {
+		for(String alias : aliases) {
+			TreeTypesL.put(alias, material);
+		}
+	}
+	
 	public static void InitializeMaterials() {
-		MaterialByType.put("GRASS", EMaterial.Grass);
-		MaterialByType.put("LONG_GRASS", EMaterial.Grass);
 		
-		MaterialByType.put("POTATOES", EMaterial.Potato);
-		MaterialByType.put("POTATO", EMaterial.Potato);
+		//Crops/Blocks
+		registerMaterial(EMaterial.Grass, "GRASS", "LONG_GRASS");
+		registerMaterial(EMaterial.Tall_Grass, "TALL_GRASS", "LARGE_GRASS");
+		registerMaterial(EMaterial.Fern, "FERN");
+		registerMaterial(EMaterial.Tall_Fern, "TALL_FERN", "LARGE_FERN");
 		
-		MaterialByType.put("CARROTS", EMaterial.Carrot);
-		MaterialByType.put("CARROT", EMaterial.Carrot);
+		registerMaterial(EMaterial.Potato, "POTATOES", "POTATO");
+		registerMaterial(EMaterial.Carrot, "CARROTS", "CARROT");
+		registerMaterial(EMaterial.Wheat_Seeds, "WHEAT", "CROPS");
+		registerMaterial(EMaterial.Beetroot_Seeds, "BEETROOTS", "BEETROOT_BLOCK");
+		registerMaterial(EMaterial.Sweet_Berry_Bush, "BEE_GROWABLES", "SWEET_BERRY_BUSH");
 		
-		MaterialByType.put("WHEAT", EMaterial.Wheat_Seeds);
-		MaterialByType.put("CROPS", EMaterial.Wheat_Seeds);
-
-		MaterialByType.put("BEETROOTS", EMaterial.Beetroot_Seeds);
-		MaterialByType.put("BEETROOT_BLOCK", EMaterial.Beetroot_Seeds);
+		registerMaterial(EMaterial.Pumpkin_Stem, "PUMPKIN_STEM", "PUMPKIN_SEEDS");
+		registerMaterial(EMaterial.Melon_Stem, "MELON_STEM", "MELON_SEEDS");
+		registerMaterial(EMaterial.Cocoa_Beans, "COCOA_BEANS", "COCOA");
 		
-		MaterialByType.put("PUMPKIN_STEM", EMaterial.Pumpkin_Stem);
-		MaterialByType.put("PUMPKIN_SEEDS", EMaterial.Pumpkin_Stem);
+		registerMaterial(EMaterial.Pumpkin, "PUMPKIN");
+		registerMaterial(EMaterial.Melon, "MELON_BLOCK");
+		registerMaterial(EMaterial.Sugar_Cane, "SUGAR_CANE", "SUGAR_CANE_BLOCK");
+		registerMaterial(EMaterial.Cactus, "CACTUS");
 		
-		MaterialByType.put("MELON_STEM", EMaterial.Melon_Stem);
-		MaterialByType.put("MELON_SEEDS", EMaterial.Melon_Stem);
-
-		MaterialByType.put("PUMPKIN", EMaterial.Pumpkin);
+		registerMaterial(EMaterial.Soil, "SOIL", "FARMLAND");
+		registerMaterial(EMaterial.Air, "AIR");
+		registerMaterial(EMaterial.Water, "WATER");
 		
-		MaterialByType.put("MELON_BLOCK", EMaterial.Melon);
+		registerMaterial(EMaterial.Sea_Grass, "SEAGRASS");
+		registerMaterial(EMaterial.Sea_Pickle, "SEA_PICKLE");
+		registerMaterial(EMaterial.Kelp, "KELP", "KELP_PLANT");
 		
-		MaterialByType.put("SUGAR_CANE", EMaterial.Sugar_Cane);
-		MaterialByType.put("SUGAR_CANE_BLOCK", EMaterial.Sugar_Cane);
+		registerMaterial(EMaterial.Twisting_Vines, "TWISTING_VINES", "TWISTING_VINES_PLANT");
+		registerMaterial(EMaterial.Weeping_Vines, "WEEPING_VINES", "WEEPING_VINES_PLANT");
 		
-		MaterialByType.put("CACTUS", EMaterial.Cactus);
+		registerMaterial(EMaterial.Cave_Vines, "CAVE_VINES", "CAVE_VINES_PLANT");
 		
-		MaterialByType.put("SOIL", EMaterial.Soil);
-		MaterialByType.put("FARMLAND", EMaterial.Soil);
-		
-		MaterialByType.put("SEAGRASS", EMaterial.Sea_Grass);
-		
-		MaterialByType.put("SEA_PICKLE", EMaterial.Sea_Pickle);
-		
-		MaterialByType.put("OAK_SAPLING", EMaterial.Sapling);
-		MaterialByType.put("SAPLING|0", EMaterial.Sapling);
-		MaterialByType.put("SPRUCE_SAPLING", EMaterial.Sapling);
-		MaterialByType.put("SAPLING|1", EMaterial.Sapling);
-		MaterialByType.put("JUNGLE_SAPLING", EMaterial.Sapling);
-		MaterialByType.put("SAPLING|4", EMaterial.Sapling);	
-		MaterialByType.put("ACACIA_SAPLING", EMaterial.Sapling);
-		MaterialByType.put("SAPLING|2", EMaterial.Sapling);
-		MaterialByType.put("BIRCH_SAPLING", EMaterial.Sapling);
-		MaterialByType.put("SAPLING|3", EMaterial.Sapling);
-		MaterialByType.put("DARK_OAK_SAPLING", EMaterial.Sapling);
-		MaterialByType.put("SAPLING|5", EMaterial.Sapling);
-		MaterialByType.put("RED_MUSHROOM", EMaterial.Sapling);
-		MaterialByType.put("BROWN_MUSHROOM", EMaterial.Sapling);
-		MaterialByType.put("WARPED_FUNGUS", EMaterial.Sapling);
-		MaterialByType.put("CRIMSON_FUNGUS", EMaterial.Sapling);
-		
-		MaterialByType.put("AIR", EMaterial.Air);
+		registerMaterial(EMaterial.Bamboo, "BAMBOO_SAPLING", "BAMBOO");
+		registerMaterial(EMaterial.Sapling, 
+				"OAK_SAPLING", "SAPLING|0", 
+				"SPRUCE_SAPLING", "SAPLING|1", 
+				"BIRCH_SAPLING", "SAPLING|2", 
+				"JUNGLE_SAPLING", "SAPLING|3", 
+				"ACACIA_SAPLING", "SAPLING|4", 
+				"DARK_OAK_SAPLING", "SAPLING|5", 
+				"RED_MUSHROOM", "BROWN_MUSHROOM",
+				"WARPED_FUNGUS", "CRIMSON_FUNGUS",
+				"FLOWERING_AZALEA", "AZALEA");
 		
 		//Trees
-		TreeTypesL.put("OAK_SAPLING", EMaterial.Oak_Sapling);
-		TreeTypesL.put("SAPLING|0", EMaterial.Oak_Sapling);
+		registerTreeSpecies(EMaterial.Oak_Sapling, "OAK_SAPLING", "SAPLING|0");
+		registerTreeSpecies(EMaterial.Spruce_Sapling, "SPRUCE_SAPLING", "SAPLING|1");
+		registerTreeSpecies(EMaterial.Birch_Sapling, "BIRCH_SAPLING", "SAPLING|2");
+		registerTreeSpecies(EMaterial.Jungle_Sapling, "JUNGLE_SAPLING", "SAPLING|3");
+		registerTreeSpecies(EMaterial.Acacia_Sapling, "ACACIA_SAPLING", "SAPLING|4");
+		registerTreeSpecies(EMaterial.Dark_Oak_Sapling, "DARK_OAK_SAPLING", "SAPLING|5");
 		
-		TreeTypesL.put("SPRUCE_SAPLING", EMaterial.Spruce_Sapling);
-		TreeTypesL.put("SAPLING|1", EMaterial.Spruce_Sapling);
-
-		TreeTypesL.put("JUNGLE_SAPLING", EMaterial.Jungle_Sapling);
-		TreeTypesL.put("SAPLING|3", EMaterial.Jungle_Sapling);
+		registerTreeSpecies(EMaterial.Red_Mushroom, "RED_MUSHROOM");
+		registerTreeSpecies(EMaterial.Brown_Mushroom, "BROWN_MUSHROOM");
 		
-		TreeTypesL.put("ACACIA_SAPLING", EMaterial.Acacia_Sapling);
-		TreeTypesL.put("SAPLING|4", EMaterial.Acacia_Sapling);
+		registerTreeSpecies(EMaterial.Warped_Fungus, "WARPED_FUNGUS");
+		registerTreeSpecies(EMaterial.Crimson_Fungus, "CRIMSON_FUNGUS");
 		
-		TreeTypesL.put("BIRCH_SAPLING", EMaterial.Birch_Sapling);
-		TreeTypesL.put("SAPLING|2", EMaterial.Birch_Sapling);
-		
-		TreeTypesL.put("DARK_OAK_SAPLING", EMaterial.Dark_Oak_Sapling);
-		TreeTypesL.put("SAPLING|5", EMaterial.Dark_Oak_Sapling);
-		
-		TreeTypesL.put("RED_MUSHROOM", EMaterial.Red_Mushroom);
-		TreeTypesL.put("BROWN_MUSHROOM", EMaterial.Brown_Mushroom);
-		
-		TreeTypesL.put("WARPED_FUNGUS", EMaterial.Warped_Fungus);
-		TreeTypesL.put("CRIMSON_FUNGUS", EMaterial.Crimson_Fungus);
+		registerTreeSpecies(EMaterial.Flowering_Azalea, "FLOWERING_AZALEA");
+		registerTreeSpecies(EMaterial.Azalea, "AZALEA");
 	}
 	
 	public static void InitExtra() {

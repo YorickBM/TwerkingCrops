@@ -1,9 +1,12 @@
 name: Twerking-Crops
 main: Spigot.TwerkingCrops.Core
-version: 9.3
+version: 10.0
 api-version: 1.13
 commands:
    set:
-      description: Set Functions True/False In-Game
-      usage: <command>
+      description: Set the value of a function/variable In-Game
+      usage: <command> <function> <value>
+   blacklist:
+      description: Blacklist a crop or wolrd In-Game
+      usage: <command> <crop/world> <value>
       

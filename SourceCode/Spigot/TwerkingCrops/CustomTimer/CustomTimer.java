@@ -16,6 +16,9 @@ import Spigot.TwerkingCrops.ToolBox;
  * Created by Yorick, Last modified on: 14-1-2019
  */
 public class CustomTimer {
+	//TODO: Create blacklist
+	//TODO: Save crops by chunk, not by crop
+	//TODO: Execute growth per chunk not per crop
 	
 	boolean reloadTwerk, reloadCrops = false;
 	

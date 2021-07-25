@@ -14,9 +14,6 @@ public interface PlayerEvents {
 	public void onBlockBreak(BlockBreakEvent e);
 	  
 	public void CheckSeed(Block block);
-	public boolean EntityInSpace(Block b);
-	public boolean CheckHasBlock(Block StemBlock);
-	public void checkStem(Block StemBlock, Block Space); 
 	public void createParticles(Location loc);
 
 }

@@ -17,7 +17,9 @@ public class EventHandlerCustomTimer implements Listener {
 	@EventHandler
 	  public void Placeblock(BlockPlaceEvent e)
 	  {
-		if(Materials.isTypeAllowed(Materials.GetType(e.getBlock())))
+		if(Materials.isTypeAllowed(Materials.GetType(e.getBlock())) 
+				&& !Core.getInstance().GetWorldBlacklist().IsBlacklisted(e.getBlock().getLocation().getWorld().getName())
+				&& !Core.getInstance().GetCropBlacklist().IsBlacklisted(Materials.GetType(e.getBlock()).toString()))
 			Core.getInstance().seedsForTimer.add(new SeedType(Materials.GetType(e.getBlock()), e.getBlock().getLocation()));
 	  }
 	  

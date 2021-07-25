@@ -28,8 +28,13 @@ import Spigot.TwerkingCrops.ActionBar.ActionBar;
 import Spigot.TwerkingCrops.ActionBar.ActionBar_1_11_B;
 import Spigot.TwerkingCrops.ActionBar.ActionBar_1_12_A;
 import Spigot.TwerkingCrops.ActionBar.ActionBar_1_16_A;
+import Spigot.TwerkingCrops.Commands.BlacklistAutoCompleter;
+import Spigot.TwerkingCrops.Commands.BlacklistFunctie;
 import Spigot.TwerkingCrops.Commands.SetAutoCompleter;
 import Spigot.TwerkingCrops.Commands.SetFunctie;
+import Spigot.TwerkingCrops.Configuration.Blacklist;
+import Spigot.TwerkingCrops.Configuration.ConfigManager;
+import Spigot.TwerkingCrops.Configuration.LanguageManager;
 import Spigot.TwerkingCrops.CustomTimer.CustomTimer;
 import Spigot.TwerkingCrops.CustomTimer.EventHandlerCustomTimer;
 import Spigot.TwerkingCrops.CustomTimer.SeedType;
@@ -78,8 +83,13 @@ public class Core extends JavaPlugin {
 	public Permission staffPermission = new Permission("Twerk.staff");
 	public Permission noRandomizerPermission = new Permission("Twerk.noRandomizer");
 	
+	private ConfigManager _scfgm;
+	private Blacklist _wbcfgm, _sbcfgm;
+	public ConfigManager GetSeedsConfig() { return _scfgm; }
+	public Blacklist GetWorldBlacklist() { return _wbcfgm; }
+	public Blacklist GetCropBlacklist() { return _sbcfgm; }
+	
 	public String version;
-	public ConfigManager cfgm;
 	public boolean NotifSpigotOnly = false;
 	
 	public List<String> Functions = new ArrayList<String>();	  
@@ -95,6 +105,10 @@ public class Core extends JavaPlugin {
 	{
 		return instance;
   	}
+	
+	public static void DeveloperPrint(String msg) {
+		//Bukkit.getLogger().log(Level.WARNING, msg);
+	}
 	
 	/*
 	 * Will run when plugin gets initialized by Spigot/Bukkit
@@ -113,12 +127,9 @@ public class Core extends JavaPlugin {
 	    getServer().getPluginManager().registerEvents(new EventHandlerCustomTimer(), this);
 	    getServer().getPluginManager().registerEvents((Listener) _playerEvents, this);
 
-	    cfgm = new ConfigManager();
-	    cfgm.seeds();
-	    cfgm.saveSeeds();
-	    cfgm.reloadSeeds();
+	    setupConfiguration();
 	    
-	    ToolBox.InitLocations(Core.getInstance().cfgm.getSeeds().getInt("Ints.SEEDS"));
+	    ToolBox.InitLocations(GetSeedsConfig().GetData().getInt("Ints.SEEDS"));
 	    ToolBox.LoadStemsFromConfig();
 	    ToolBox.CheckFuncties();
 	    
@@ -160,6 +171,9 @@ public class Core extends JavaPlugin {
 	{
 		getCommand("set").setExecutor(new SetFunctie());
 		getCommand("set").setTabCompleter(new SetAutoCompleter());
+		
+		getCommand("blacklist").setExecutor(new BlacklistFunctie());
+		getCommand("blacklist").setTabCompleter(new BlacklistAutoCompleter());
 	}
 	  
 	/*
@@ -173,7 +187,7 @@ public class Core extends JavaPlugin {
 					consumer.accept(scanner.next());
 				
 			} catch (IOException ex) {
-				getLogger().log(Level.WARNING, "Could not look for updates!");
+				getLogger().log(Level.WARNING, "We could not acces spigot servers to check your plugin version!");
 			}
 		});
 	}
@@ -263,6 +277,17 @@ public class Core extends JavaPlugin {
 						"Set.Succes=&5&lTwerking Crops → &7You succesfully set %Func% to %Result%\r\n" + 
 						"Set.NotAble=&5&lTwerking Crops → &7You can''t set %Func% to %Result% because %Reason%\r\n" + 
 						"\r\n" + 
+						"Blacklist.NoPerms=&5&lTwerking Crops → &7Whoops, you don''t have the permission to do this!\r\n" +
+						"Blacklist.Error=&5&lTwerking Crops → &7Use /blacklist <crop/world> <add/remove/list/save> [item]\r\n" +
+						"Blacklist.Error.NoItem=&5&lTwerking Crops → &7Please enter an item to %action%.\r\n" +
+						"Blacklist.Error.List=&5&lTwerking Crops → &7Please enter a valid blacklist.\r\n" +
+						"Blacklist.Error.Action=&5&lTwerking Crops → &7Please enter a valid action.\r\n" +
+						"Blacklist.AlreadyOn=&5&lTwerking Crops → &7%item% is already on the %blacklist%-blacklist.\r\n" +
+						"Blacklist.NotFound=&5&lTwerking Crops → &7%item% is not found on the %blacklist%-blacklist.\r\n" +
+						"Blacklist.Succes=&5&lTwerking Crops → &7Succesfully execute the action: %action% for the %blacklist%-blacklist.\r\n" +
+						"Blacklist.List.Header=&5&lTwerking Crops → &7Blacklist items for %blacklist%:\r\n" +
+						"Blacklist.List.Item=&5&l→ &7%activeItem%\r\n" +
+						"\r\n" + 
 						"TwerkingPerSecond.Shifting=* You are &ntwerking&r at &5&n%ShiftingRate% per second *\r\n" + 
 						"\r\n" + 
 						"Runnables.NoPerms=&5&lTwerking Crops → &7Whoops, you don''t have the permission to do this!\r\n" + 
@@ -313,6 +338,17 @@ public class Core extends JavaPlugin {
 						"Set.Succes=&5&lTwerking Crops → &7Succesvol %Func% gezet naar %Result%\r\n" + 
 						"Set.NotAble=&5&lTwerking Crops → &7Je kunt %Func% niet naar %Result% zetten, want %Reason%\r\n" + 
 						"\r\n" + 
+						"Blacklist.NoPerms=&5&lTwerking Crops → &7Whoops, je hebt niet de bevoegdheid om dit uit te voeren!\r\n" +
+						"Blacklist.Error=&5&lTwerking Crops → &7Gebruik /blacklist <crop/world> <add/remove/list/save> [item]\r\n" +
+						"Blacklist.Error.NoItem=&5&lTwerking Crops → &7Vul alstublieft een item toe om de volgende actie op uit te voeren: %action%\r\n" +
+						"Blacklist.Error.List=&5&lTwerking Crops → &7De volgende blacklist niet gevonden: %blacklist%\r\n" +
+						"Blacklist.Error.Action=&5&lTwerking Crops → &7De volgende actie kan niet uitgevoerd worden: %action%\r\n" +
+						"Blacklist.AlreadyOn=&5&lTwerking Crops → &7%item% is al toegevoegd aan %blacklist%-blacklist.\r\n" +
+						"Blacklist.NotFound=&5&lTwerking Crops → &7%item% is niet gevonden op %blacklist%-blacklist.\r\n" +
+						"Blacklist.Succes=&5&lTwerking Crops → &7De actie: %action% is succesvol uitgevoerd voor %blacklist%-blacklist.\r\n" +
+						"Blacklist.List.Header=&5&lTwerking Crops → &7Blacklist items voor %blacklist%:\r\n" +
+						"Blacklist.List.Item=&5&l→ &7%activeItem%\r\n" +
+						"\r\n" + 
 						"TwerkingPerSecond.Shifting=* Je bent &5&n%ShiftingRate% keer per seconde aan het &ntwerken&r *\r\n" + 
 						"\r\n" + 
 						"Runnables.NoPerms=&5&lTwerking Crops → &7Whoops, je hebt niet de bevoegdheid om dit te doen!\r\n" + 
@@ -342,6 +378,30 @@ public class Core extends JavaPlugin {
 	}
 	
 	/*
+	 * Setup all custom config files
+	 */
+	private void setupConfiguration() {
+		_scfgm = new ConfigManager();
+	    _wbcfgm = new Blacklist();
+	    _sbcfgm = new Blacklist();
+	    try {
+	    	GetSeedsConfig().Initialize("/Data/Seeds.yml");
+	    	GetSeedsConfig().Save();
+	    	GetSeedsConfig().Reload();
+	    	
+	    	GetWorldBlacklist().Initialize("World-Blacklist.yml");
+	    	GetWorldBlacklist().Save();
+	    	GetWorldBlacklist().Reload();
+	    	
+	    	GetCropBlacklist().Initialize("Crop-Blacklist.yml");
+	    	GetCropBlacklist().Save();
+	    	GetCropBlacklist().Reload();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+		}
+	}
+	
+	/*
 	 * Will Implement Correct Classes and Imports to let 
 	 * Twerking-Crops function properly on your server version!
 	 * 
@@ -358,6 +418,7 @@ public class Core extends JavaPlugin {
 		      getServer().getPluginManager().disablePlugin(this);
 		  }
 	}
+	
 	/*
 	 * This will return true or false depending if we found a NMS classes for the compatible
 	 * server version, so every function is compatible!
@@ -423,7 +484,7 @@ public class Core extends JavaPlugin {
 	    	  Materials.InitExtra();
 	    	  _playerEvents = new PlayerEvents_1_13();
 	    	  _actionBar = new ActionBar_1_16_A();
-	      } else if (version.contains("v1_17_")) { //Speculation
+	      } else if (version.contains("v1_17_R1")) { 
 	    	  Materials.InitExtra();
 	    	  _playerEvents = new PlayerEvents_1_13();
 	    	  _actionBar = new ActionBar_1_16_A();

@@ -7,7 +7,11 @@ import org.bukkit.TreeType;
 
 public class TreeTypes {
 	
-	public static enum ETreeType { Oak, Large_Oak, Birch, Spruce, Large_Spruce, Jungle, Large_Jungle, Acacia, Dark_Oak, Red_Mushroom, Brown_Mushroom, Crimson_Fungs, Warped_Fungs};
+	public static enum ETreeType { 
+		Oak, Large_Oak, Birch, Spruce, Large_Spruce, 
+		Jungle, Large_Jungle, Acacia, Dark_Oak, 
+		Red_Mushroom, Brown_Mushroom, Crimson_Fungus, Warped_Fungus, 
+		Flowering_Azalea, Azalea };
 	
 	private static HashMap<ETreeType, ArrayList<String>> TreeTypeByType = new HashMap<ETreeType, ArrayList<String>>();
 	
@@ -59,11 +63,19 @@ public class TreeTypes {
 		
 		data = new ArrayList<String>();
 		data.add("CRIMSON_FUNGUS");
-		TreeTypeByType.put(ETreeType.Crimson_Fungs, data);
+		TreeTypeByType.put(ETreeType.Crimson_Fungus, data);
 		
 		data = new ArrayList<String>();
 		data.add("WARPED_FUNGUS");
-		TreeTypeByType.put(ETreeType.Warped_Fungs, data);
+		TreeTypeByType.put(ETreeType.Warped_Fungus, data);
+		
+		data = new ArrayList<String>();
+		data.add("AZALEA");
+		TreeTypeByType.put(ETreeType.Flowering_Azalea, data);
+		
+		data = new ArrayList<String>();
+		data.add("AZALEA");
+		TreeTypeByType.put(ETreeType.Azalea, data);
 	}
 	
 	

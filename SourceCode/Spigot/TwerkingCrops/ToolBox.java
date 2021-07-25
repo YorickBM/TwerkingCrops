@@ -13,11 +13,14 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import Spigot.TwerkingCrops.Materials.EMaterial;
+import Spigot.TwerkingCrops.Commands.BlacklistFunctie;
 import Spigot.TwerkingCrops.Commands.SetFunctie;
 import Spigot.TwerkingCrops.CustomTimer.SeedType;
 import net.md_5.bungee.api.ChatColor;
@@ -72,15 +75,15 @@ public class ToolBox {
 	 
 	 public static void SaveCropsToConfig() {
 		  index = 0;
-		  Core.getInstance().seedsForTimer.stream().forEach(x -> Core.getInstance().cfgm.getSeeds().set("DATA." + getNum() + "", x.toString()));
-		  Core.getInstance().cfgm.getSeeds().set("Ints.SEEDS", index);		  
+		  Core.getInstance().seedsForTimer.stream().forEach(x -> Core.getInstance().GetSeedsConfig().GetData().set("DATA." + getNum() + "", x.toString()));
+		  Core.getInstance().GetSeedsConfig().GetData().set("Ints.SEEDS", index);		  
 		  
-		  Core.getInstance().cfgm.saveSeeds();
+		  Core.getInstance().GetSeedsConfig().Save();
 	  }
 	  public static void InitLocations(int seeds) {
 
 		  for (int i = 0; i < seeds; i++) {
-	          String[] data = Core.getInstance().cfgm.getSeeds().getString("DATA." + i + "").split(";");
+	          String[] data = Core.getInstance().GetSeedsConfig().GetData().getString("DATA." + i + "").split(";");
 
 	          if(EMaterial.valueOf(data[0]) != null) {
 	        	  Core.getInstance().seedsForTimer.add(new SeedType(data[0], data[1]));
@@ -118,6 +121,10 @@ public class ToolBox {
 	      
 	      .replace("%Functions%", method(Functions))
 	      .replace("%Reason%", SetFunctie.Reason)
+	      
+	      .replace("%action%", BlacklistFunctie.Action)
+	      .replace("%item%", BlacklistFunctie.Item)
+	      .replace("%blacklist%", BlacklistFunctie.Blacklist)
 	      );
 	  }
 	  public static String process(List<String> data) {
@@ -236,4 +243,42 @@ public class ToolBox {
 	  public static Location stringToLocation(String[] loc) {
 		  return new Location(Bukkit.getWorld(loc[0]), Double.valueOf(loc[1]), Double.valueOf(loc[2]), Double.valueOf(loc[3]));
 	  }
+	  
+	  public static boolean EntityInSpace(Block b) {
+			for(Entity e : b.getChunk().getEntities()){
+				if(e.getLocation().distance(b.getLocation())<=1.5){ //1.5 because the entity could be between a block
+					return true;
+				}	
+			}
+			return false;
+		}
+		public static boolean CheckHasBlock(Block StemBlock) {
+				if(Core.getInstance().StemToBlock.get(StemBlock.getLocation()) != null) {
+					return true;
+				}
+			return false;
+		}
+		public static void checkStem(Block StemBlock, Block Space) {
+			if(Materials.IsSimilar(StemBlock, EMaterial.Melon_Stem))
+				Materials.SetType(Space, EMaterial.Melon);
+			if(Materials.IsSimilar(StemBlock, EMaterial.Pumpkin_Stem))
+				Materials.SetType(Space, EMaterial.Pumpkin);
+			  
+			//Put Data in HashMap
+			HashMap<Location, EMaterial> data = new HashMap<Location, EMaterial>();
+			data.put(Space.getLocation(), Materials.GetType(Space));
+			  
+			Core.getInstance().StemToBlock.put(StemBlock.getLocation(), data);
+			Core.getInstance().BlockToStem.put(Space.getLocation(), StemBlock.getLocation());
+		} 
+		
+		public static String toCamelCase(String msg, String divider) {
+			String result = "";
+			for(String part : msg.split(divider)) {
+				result += part.substring(0, 1).toUpperCase();
+				result += part.substring(1, part.length()).toLowerCase();
+				result += divider;
+			}
+			return result.substring(0, result.length() - 1);
+		}
 }
