@@ -8,7 +8,7 @@ All the available commands are listed down below with the needed
 permission to use this command, also a small description is provided
 for each command.
 
-/set <GrowthTimer/Twerking/Particles/...> <True/False/...> (This command provides an function to set specified functions to true/false while In-Game, they instantly Update!)
+/set <GrowthTimer/Twerking/Particles/...> <True/False/...> (This command provides an function to set specified functions to true/false while In-Game, they instantly Update!)<br>
 /blacklist <crop/world> <add/remove/list> [value]
 
 ## Features:
