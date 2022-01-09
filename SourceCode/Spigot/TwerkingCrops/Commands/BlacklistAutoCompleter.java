@@ -7,6 +7,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
+/*
+ * Created by Yorick, Last modified on: 06-10-2021
+ */
 public class BlacklistAutoCompleter implements TabCompleter {
 
 	@Override
@@ -16,6 +19,7 @@ public class BlacklistAutoCompleter implements TabCompleter {
 		List<String> lists = new ArrayList<String>();
 		lists.add("crop");
 		lists.add("world");
+		lists.add("timer");
 		
 		List<String> actions = new ArrayList<String>();
 		actions.add("add");

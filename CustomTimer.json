@@ -1,0 +1,73 @@
+{
+   "Configurations": [
+      {
+         "World": "world",
+         "Biomes": [
+            "BADLANDS",
+            "BAMBOO_JUNGLE",
+            "BASALT_DELTAS",
+            "BEACH",
+            "BIRCH_FOREST",
+            "COLD_OCEAN",
+            "CRIMSON_FOREST",
+            "DARK_FOREST",
+            "DEEP_COLD_OCEAN",
+            "DEEP_FROZEN_OCEAN",
+            "DEEP_LUKEWARM_OCEAN",
+            "DEEP_OCEAN",
+            "DESERT",
+            "DRIPSTONE_CAVES",
+            "ERODED_BADLANDS",
+            "FLOWER_FOREST",
+            "FOREST",
+            "FROZEN_OCEAN",
+            "FROZEN_PEAKS",
+            "FROZEN_RIVER",
+            "GROVE",
+            "ICE_SPIKES",
+            "JAGGED_PEAKS",
+            "JUNGLE",
+            "LUKEWARM_OCEAN",
+            "LUSH_CAVES",
+            "MEADOW",
+            "MUSHROOM_FIELDS",
+            "OCEAN",
+            "OLD_GROWTH_BIRCH_FOREST",
+            "OLD_GROWTH_PINE_TAIGA",
+            "OLD_GROWTH_SPRUCE_TAIGA",
+            "PLAINS",
+            "RIVER",
+            "SAVANNA",
+            "SAVANNA_PLATEAU",
+            "SNOWY_BEACH",
+            "SNOWY_PLAINS",
+            "SNOWY_SLOPES",
+            "SNOWY_TAIGA",
+            "SPARSE_JUNGLE",
+            "STONY_PEAKS",
+            "STONY_SHORE",
+            "SUNFLOWER_PLAINS",
+            "SWAMP",
+            "TAIGA",
+            "WARM_OCEAN",
+            "WINDSWEPT_FOREST",
+            "WINDSWEPT_GRAVELLY_HILLS",
+            "WINDSWEPT_HILLS",
+            "WINDSWEPT_SAVANNA",
+            "WOODED_BADLANDS"
+         ],
+         "AffectedCrops": [
+            {
+               "Name": "Wheat_Seeds",
+               "TickSpeed": 3
+            },
+            {
+               "Name": "Potato",
+               "TickSpeed": 3
+            }
+         ],
+         "Minimum": 25,
+         "Maximum": 200
+      }
+   ]
+}

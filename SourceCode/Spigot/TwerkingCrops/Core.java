@@ -42,52 +42,35 @@ import Spigot.TwerkingCrops.PlayerEvents.PlayerEvents;
 import Spigot.TwerkingCrops.PlayerEvents.PlayerEvents_1_13;
 import Spigot.TwerkingCrops.PlayerEvents.PlayerEvents_1_9_ABOVE;
 
-/*
- * Version Fix List:
- * 8.2
- * -> Enchantment's support for 1.13+ (Don't forget check in Toolbox.java)
- * 
- * 8.1
- * -> Pumpkin with face fix 1.13+ (Set it by mine craft ID not material type) 
- * -> Fix performance issues custom crop grow timer (Complete Redo needed)
- * -> Block break Event & Sneak event optimized âœ“ 
- * -> 1.16 support âœ“  (Actionbar only spigot?!?!?)
- * -> Nether items that are bonemeal affected added
- * -> Mushrooms added
- * -> Custom Materials System âœ“
- * --> Applying patricles & bonemeal acting strange
- * 
- * 8.0
- * -> Sugar cane & Cactus Support âœ“
- * -> 1.13 & 1.14 & 1.15 support âœ“
- * -> Air platforms allowed âœ“
- * -> Pumpkin & Melon can't force grow on air anymore âœ“
- */
 
 /*
- * Created by Yorick, Last modified on: 12-06-2020
+ * Created by Yorick, Last modified on: 06-10-2021
  */
 public class Core extends JavaPlugin {
 	private static Core instance = null;
 	private ActionBar _actionBar;
 	private PlayerEvents _playerEvents;
+	private CustomTimer _timer;
 	private BoneMealer _boneMealer;
 	private LanguageManager _languageManager;
 	
 	public ActionBar GetActionBar() { return _actionBar; }
 	public PlayerEvents GetPlayerEvents() { return _playerEvents; }
+	public CustomTimer GetCustomTimer() { return _timer; }
 	public BoneMealer GetBonemealer() { return _boneMealer; }
 	public LanguageManager GetLanguageManager() { return _languageManager; }
+	public boolean isShutingdown = false;
 	
 	public Permission playerPermission = new Permission("Twerk.use");
 	public Permission staffPermission = new Permission("Twerk.staff");
 	public Permission noRandomizerPermission = new Permission("Twerk.noRandomizer");
 	
 	private ConfigManager _scfgm;
-	private Blacklist _wbcfgm, _sbcfgm;
+	private Blacklist _wbcfgm, _sbcfgm, _tbcfgm;
 	public ConfigManager GetSeedsConfig() { return _scfgm; }
 	public Blacklist GetWorldBlacklist() { return _wbcfgm; }
 	public Blacklist GetCropBlacklist() { return _sbcfgm; }
+	public Blacklist GetTimerBlacklist() { return _tbcfgm; }
 	
 	public String version;
 	public boolean NotifSpigotOnly = false;
@@ -108,6 +91,9 @@ public class Core extends JavaPlugin {
 	
 	public static void DeveloperPrint(String msg) {
 		//Bukkit.getLogger().log(Level.WARNING, msg);
+	}
+	public static void DebugPrint(String msg) {
+		//Bukkit.getLogger().log(Level.SEVERE, msg);
 	}
 	
 	/*
@@ -140,8 +126,8 @@ public class Core extends JavaPlugin {
 		
 		if(!getServer().getPluginManager().isPluginEnabled(this)) return; 
 	    
-	    CustomTimer timer = new CustomTimer();
-	    timer.startRunnables();
+	    _timer = new CustomTimer();
+	    _timer.initiateRunnables();
 	    Commands();
 	    
 	    PluginManager pmp = getServer().getPluginManager();
@@ -150,6 +136,11 @@ public class Core extends JavaPlugin {
 	    pmp.addPermission(this.noRandomizerPermission);
 	    
 	    setupbStats();
+	    if(Core.getInstance().getDescription().getVersion().contains("-dev")) {
+	    	getLogger().log(Level.WARNING, "Please note that you are running a developer version.");
+	    	getLogger().log(Level.WARNING, "This means that there may be debug messages and we may not be able to provide full support.");
+	    	getLogger().log(Level.WARNING, "Only use the developer version if so instructed, other wise download the version from spigot/curse.");
+	    }
 	}
 	
 	/*
@@ -157,6 +148,12 @@ public class Core extends JavaPlugin {
 	 */
 	public void onDisable()
 	  {
+	    isShutingdown = true;
+
+		PluginManager pmp = getServer().getPluginManager();
+	    pmp.removePermission(this.playerPermission);
+	    pmp.removePermission(this.staffPermission);
+	    pmp.removePermission(this.noRandomizerPermission);
 		  
 	   ToolBox.SaveCropsToConfig();
 	   ToolBox.SaveStemsToConfig();
@@ -197,7 +194,7 @@ public class Core extends JavaPlugin {
 	*/
 	private void setupbStats() {
 		if(Core.getInstance().getConfig().getString("Custom.bStats").contentEquals("FALSE")) {
-	    	Bukkit.getLogger().log(Level.INFO, "bStats has been disabled. You can enable bStats in your Config.yml. We would advise you to enable it for research purposes.");
+			getLogger().log(Level.INFO, "bStats has been disabled. You can enable bStats in your Config.yml. We would advise you to enable it for research purposes.");
 	    		
 	    } else {
 	    	Metrics metrics = new Metrics(this, 7832);
@@ -384,6 +381,7 @@ public class Core extends JavaPlugin {
 		_scfgm = new ConfigManager();
 	    _wbcfgm = new Blacklist();
 	    _sbcfgm = new Blacklist();
+	    _tbcfgm = new Blacklist();
 	    try {
 	    	GetSeedsConfig().Initialize("/Data/Seeds.yml");
 	    	GetSeedsConfig().Save();
@@ -396,8 +394,14 @@ public class Core extends JavaPlugin {
 	    	GetCropBlacklist().Initialize("Crop-Blacklist.yml");
 	    	GetCropBlacklist().Save();
 	    	GetCropBlacklist().Reload();
+
+			new ConfigManager().Initialize("CustomTimer.json");
+	    	
+	    	//GetTimerBlacklist().Initialize("Timer-Blacklist.yml");
+	    	//GetTimerBlacklist().Save();
+	    	//GetTimerBlacklist().Reload();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			Core.DebugPrint("Error on initializing configuration files: \n" + e);
 		}
 	}
 	
@@ -414,8 +418,9 @@ public class Core extends JavaPlugin {
 		      getLogger().log(Level.INFO, "Succesfully enabled correct NMS Classes");
 		  } else {
 			  getLogger().log(Level.SEVERE, "Failed to find the NMS class corresponding to your version!");
-			  getLogger().log(Level.SEVERE, "Please report this error to the Plugin Creator with your server Version");
-		      getServer().getPluginManager().disablePlugin(this);
+			  getLogger().log(Level.SEVERE, "We have enabled the NMS Classes for the latest tested minecraft version.");
+			  getLogger().log(Level.SEVERE, "Due to this, bugs may occur when using this plugin.");
+		      //getServer().getPluginManager().disablePlugin(this);
 		  }
 	}
 	
@@ -435,16 +440,7 @@ public class Core extends JavaPlugin {
 	      getLogger().info("Your server is running version " + version);
 	      boolean NMS = true;
 
-	      /*if (version.equals("v1_8_R1")) {
-	    	  actionBar = new ActionBar_1_11_B();
-	    	  playerEvents = new PlayerEvents_1_8();
-	      } else if (version.equals("v1_8_R2")) {
-	    	  actionBar = new ActionBar_1_11_B();
-	    	  playerEvents = new PlayerEvents_1_8();
-	      } else if (version.equals("v1_8_R3")) {
-	    	  actionBar = new ActionBar_1_11_B();
-	    	  playerEvents = new PlayerEvents_1_8();
-	      } else */if (version.equals("v1_9_R2")) {
+	      if (version.equals("v1_9_R2")) {
 	    	  _actionBar = new ActionBar_1_11_B();
 	    	  _playerEvents = new PlayerEvents_1_9_ABOVE();
 	      } else if (version.equals("v1_10_R1")) {
@@ -472,24 +468,23 @@ public class Core extends JavaPlugin {
 	    	  Materials.InitExtra();
 	    	  _playerEvents = new PlayerEvents_1_13();
 	    	  _actionBar = new ActionBar_1_12_A();
-	      } else if (version.equals("v1_16_R1")) {
+	      } else if (version.equals("v1_16_R")) {
 	    	  Materials.InitExtra();
 	    	  _playerEvents = new PlayerEvents_1_13();
 	    	  _actionBar = new ActionBar_1_16_A();
-	      } else if (version.equals("v1_16_R2")) {
+	      }  else if (version.contains("v1_17_R")) {
 	    	  Materials.InitExtra();
 	    	  _playerEvents = new PlayerEvents_1_13();
 	    	  _actionBar = new ActionBar_1_16_A();
-	      } else if (version.equals("v1_16_R3")) {
-	    	  Materials.InitExtra();
-	    	  _playerEvents = new PlayerEvents_1_13();
-	    	  _actionBar = new ActionBar_1_16_A();
-	      } else if (version.contains("v1_17_R1")) { 
-	    	  Materials.InitExtra();
-	    	  _playerEvents = new PlayerEvents_1_13();
-	    	  _actionBar = new ActionBar_1_16_A();
-	      } else {
+	      } else if (version.contains("v1_18_R")) {
+			  Materials.InitExtra();
+			  _playerEvents = new PlayerEvents_1_13();
+			  _actionBar = new ActionBar_1_16_A();
+		  } else {
 	    	  NMS = false;
+			  Materials.InitExtra();
+			  _playerEvents = new PlayerEvents_1_13();
+			  _actionBar = new ActionBar_1_16_A();
 	      }
 	      return NMS;
 	}

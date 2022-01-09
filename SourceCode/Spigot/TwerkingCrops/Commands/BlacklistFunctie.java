@@ -9,6 +9,9 @@ import org.bukkit.command.CommandSender;
 import Spigot.TwerkingCrops.Core;
 import Spigot.TwerkingCrops.ToolBox;
 
+/*
+ * Created by Yorick, Last modified on: 06-10-2021
+ */
 public class BlacklistFunctie implements CommandExecutor {
 	
 	public static String Action = "add";
@@ -50,6 +53,10 @@ public class BlacklistFunctie implements CommandExecutor {
 					ActiveList = 1;
 					break;
 					
+				case "timer":
+					ActiveList = 2;
+					break;
+					
 					default:
 						sender.sendMessage(ToolBox.cc(Core.getInstance().GetLanguageManager().GetValue("Blacklist.Error.List")));
 						return true;
@@ -57,28 +64,38 @@ public class BlacklistFunctie implements CommandExecutor {
 				
 				switch(Action.toLowerCase()) {
 				case "add":
-					if(ActiveList == 0) {
-						if(!Core.getInstance().GetWorldBlacklist().AddItem(Item)) {
-							sender.sendMessage(ToolBox.cc(Core.getInstance().GetLanguageManager().GetValue("Blacklist.AlreadyOn")));
-							return true;
-						}
-					} else if( ActiveList == 1) {
-						if(!Core.getInstance().GetCropBlacklist().AddItem(Item)) {
-							sender.sendMessage(ToolBox.cc(Core.getInstance().GetLanguageManager().GetValue("Blacklist.AlreadyOn")));
-							return true;
-						}
-					}
 						if(ActiveList == 0) {
-							Core.getInstance().GetWorldBlacklist().GetBlacklistItems().stream().forEach(item -> sender.sendMessage("> " + item));
-						} else {
-							Core.getInstance().GetCropBlacklist().GetBlacklistItems().stream().forEach(item -> sender.sendMessage("> " + item));
+							if(!Core.getInstance().GetWorldBlacklist().AddItem(Item)) {
+								sender.sendMessage(ToolBox.cc(Core.getInstance().GetLanguageManager().GetValue("Blacklist.AlreadyOn")));
+								return true;
+							}
+						} else if( ActiveList == 1) {
+							if(!Core.getInstance().GetCropBlacklist().AddItem(Item)) {
+								sender.sendMessage(ToolBox.cc(Core.getInstance().GetLanguageManager().GetValue("Blacklist.AlreadyOn")));
+								return true;
+							}
+						} else if(ActiveList == 2) {
+							if(!Core.getInstance().GetTimerBlacklist().AddItem(Item)) {
+								sender.sendMessage(ToolBox.cc(Core.getInstance().GetLanguageManager().GetValue("Blacklist.AlreadyOn")));
+								return true;
+							}
 						}
+						
+						//if(ActiveList == 0) {
+						//	Core.getInstance().GetWorldBlacklist().GetBlacklistItems().stream().forEach(item -> sender.sendMessage("> " + item));
+						//} else if(ActiveList == 1) {
+					 	//	Core.getInstance().GetCropBlacklist().GetBlacklistItems().stream().forEach(item -> sender.sendMessage("> " + item));
+						//} else {
+						//	Core.getInstance().GetTimerBlacklist().GetBlacklistItems().stream().forEach(item -> sender.sendMessage("> " + item));
+						//}
 					
 					break;
 					
 				case "remove":
 				case "delete":
-					if(ActiveList == 0 && !Core.getInstance().GetWorldBlacklist().RemoveItem(Item) || ActiveList == 1 && !Core.getInstance().GetCropBlacklist().RemoveItem(Item)) {
+					if(ActiveList == 0 && !Core.getInstance().GetWorldBlacklist().RemoveItem(Item) || 
+					   ActiveList == 1 && !Core.getInstance().GetCropBlacklist().RemoveItem(Item) ||
+					   ActiveList == 2 && !Core.getInstance().GetTimerBlacklist().RemoveItem(Item)) {
 						sender.sendMessage(ToolBox.cc(Core.getInstance().GetLanguageManager().GetValue("Blacklist.NotFound")));
 						return true;
 					}
@@ -89,9 +106,12 @@ public class BlacklistFunctie implements CommandExecutor {
 					if(ActiveList == 0) {
 						Core.getInstance().GetWorldBlacklist().Save();
 						Core.getInstance().GetWorldBlacklist().Reload();
-					} else {
+					} else if(ActiveList == 1) {
 						Core.getInstance().GetCropBlacklist().Save();
 						Core.getInstance().GetCropBlacklist().Reload();
+					} else {
+						Core.getInstance().GetTimerBlacklist().Save();
+						Core.getInstance().GetTimerBlacklist().Reload();
 					}
 					break;
 					
@@ -99,8 +119,10 @@ public class BlacklistFunctie implements CommandExecutor {
 					sender.sendMessage(ToolBox.cc(Core.getInstance().GetLanguageManager().GetValue("Blacklist.List.Header")));
 					if(ActiveList == 0) {
 						Core.getInstance().GetWorldBlacklist().GetBlacklistItems().stream().forEach(item -> sender.sendMessage(ToolBox.cc(Core.getInstance().GetLanguageManager().GetValue("Blacklist.List.Item").replace("%activeItem%", item))));
-					} else {
+					} else if(ActiveList == 1) {
 						Core.getInstance().GetCropBlacklist().GetBlacklistItems().stream().forEach(item -> sender.sendMessage(ToolBox.cc(Core.getInstance().GetLanguageManager().GetValue("Blacklist.List.Item").replace("%activeItem%", item))));
+					} else {
+						Core.getInstance().GetTimerBlacklist().GetBlacklistItems().stream().forEach(item -> sender.sendMessage(ToolBox.cc(Core.getInstance().GetLanguageManager().GetValue("Blacklist.List.Item").replace("%activeItem%", item))));
 					}
 					return true;
 					

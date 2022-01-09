@@ -71,6 +71,7 @@ public class PlayerEvents_1_13 implements Listener, PlayerEvents {
         if(!player.hasPermission("Twerk.noRandomizer") && random >= (Float.parseFloat(Core.getInstance().getConfig().getString("Custom.Randomizer")) / 100)) return;
         
         //Run the event
+        Core.DebugPrint("Running twerk event for: " + player.getDisplayName() + "\nHas No Randomizer Permission: " + player.hasPermission("Twerk.noRandomizer"));
         SeedsInRange.stream().forEach(s -> CheckSeed(s));
         
 	}
@@ -90,10 +91,11 @@ public class PlayerEvents_1_13 implements Listener, PlayerEvents {
 	}
 
 	public void CheckSeed(Block block) {
+		Core.DebugPrint("Running Material Checker for: " + block);
 		if(Materials.ContainsType(Materials.GetType(block))) {
 			if(Core.getInstance().GetBonemealer().applyBoneMeal(block))
 				createParticles(block.getLocation());
-		} //else Core.DeveloperPrint("Following material is not registered: " + Materials.TypeConverter(block));
+		} else Core.DebugPrint("Following material is not registered: " + Materials.TypeConverter(block));
 	}
 	
 	public void createParticles(Location loc) {

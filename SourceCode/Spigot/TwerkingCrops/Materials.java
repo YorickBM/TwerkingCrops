@@ -25,7 +25,7 @@ public class Materials {
 		Melon, Melon_Stem, Wheat_Seeds, Carrot, Potato, Grass, Sugar_Cane, Cactus, Brown_Mushroom, Red_Mushroom, Beetroot_Seeds, 
 		Oak_Sapling, Dark_Oak_Sapling, Spruce_Sapling, Jungle_Sapling, Birch_Sapling, Acacia_Sapling, Sapling,
 		Warped_Fungus, Crimson_Fungus, Fern, Bamboo, Kelp, Tall_Grass, Tall_Fern, Cocoa_Beans, Sweet_Berry_Bush, 
-		Weeping_Vines, Twisting_Vines, Azalea_Bush, Cave_Vines, Flowering_Azalea, Azalea}
+		Weeping_Vines, Twisting_Vines, Azalea_Bush, Cave_Vines, Flowering_Azalea, Azalea, UNKNOWN}
 	
 	private static HashMap<String, EMaterial> MaterialByType = new HashMap<String, EMaterial>();
 	private static HashMap<String, EMaterial> TreeTypesL = new HashMap<String, EMaterial>();
@@ -97,7 +97,7 @@ public class Materials {
 			}
 		}
 		
-		return null;
+		return EMaterial.UNKNOWN;
 	}
 	
 	public static String GetValueForType(EMaterial type) {

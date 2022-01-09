@@ -9,9 +9,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import Spigot.TwerkingCrops.Core;
 import Spigot.TwerkingCrops.Materials;
 import Spigot.TwerkingCrops.Materials.EMaterial;
+import org.bukkit.event.world.ChunkLoadEvent;
 
 /*
- * Created by Yorick, Last modified on: 14-1-2019
+ * Created by Yorick, Last modified on: 10-06-2021
  */
 public class EventHandlerCustomTimer implements Listener {
 	@EventHandler
@@ -19,7 +20,8 @@ public class EventHandlerCustomTimer implements Listener {
 	  {
 		if(Materials.isTypeAllowed(Materials.GetType(e.getBlock())) 
 				&& !Core.getInstance().GetWorldBlacklist().IsBlacklisted(e.getBlock().getLocation().getWorld().getName())
-				&& !Core.getInstance().GetCropBlacklist().IsBlacklisted(Materials.GetType(e.getBlock()).toString()))
+				//&& !Core.getInstance().GetCropBlacklist().IsBlacklisted(Materials.GetType(e.getBlock()).toString())
+		  )
 			Core.getInstance().seedsForTimer.add(new SeedType(Materials.GetType(e.getBlock()), e.getBlock().getLocation()));
 	  }
 	  
@@ -31,4 +33,9 @@ public class EventHandlerCustomTimer implements Listener {
 	    
 	    Core.getInstance().seedsForTimer.removeIf(s -> s.check(blk, loc));
 	  }
+
+	@EventHandler
+	public void onChunkLoad(ChunkLoadEvent e) {
+		Core.getInstance().GetCustomTimer().initiateChunkAsync(e.getWorld(), e.getChunk());
+	}
 }

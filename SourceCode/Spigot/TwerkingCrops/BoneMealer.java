@@ -16,6 +16,7 @@ import org.bukkit.material.MaterialData;
 
 import Spigot.TwerkingCrops.Materials.EMaterial;
 import Spigot.TwerkingCrops.TreeTypes.ETreeType;
+import Spigot.TwerkingCrops.Configuration.Blacklist;
 
 @SuppressWarnings("deprecation")
 public class BoneMealer {
@@ -75,8 +76,18 @@ public class BoneMealer {
 	
 	public boolean applyBoneMeal(Block block) {
 		
+		try {
+		
 		//Check for Crops & Trees if blacklisted
-		if(Core.getInstance().GetCropBlacklist().IsBlacklisted(Materials.GetType(block).toString()) || Materials.IsSimilar(block, EMaterial.Sapling) && Core.getInstance().GetCropBlacklist().IsBlacklisted(Materials.GetTreeType(block).toString()))
+		if(
+				Core.getInstance().GetCropBlacklist().IsBlacklisted(
+						Materials.GetType(block).toString()
+						) || 
+				Materials.IsSimilar(block, EMaterial.Sapling) && 
+				Core.getInstance().GetCropBlacklist().IsBlacklisted(
+						Materials.GetTreeType(block).toString()
+						)
+				)
 			return false;
 		
 		//Check if block is a sapling
@@ -230,7 +241,7 @@ public class BoneMealer {
         			
         	
         		default:
-        			//System.out.println("Tree Type Not Supported: " + Materials.TypeConverter(block) + " (" + Materials.GetType(block) + ")");
+        			Core.DebugPrint("Following tree type ntot supported: "  + Materials.TypeConverter(block) + " (" + Materials.GetType(block) + ")");
         			return false;
         	}
         	return false;
@@ -307,14 +318,27 @@ public class BoneMealer {
         	return true;
         	
         	default:
-        		Core.DeveloperPrint("Following crop is not registered: " + Materials.TypeConverter(block));
+        		//Core.DebugPrint("Following crop is not registered: " + Materials.TypeConverter(block));
         		return false;
         }
 		
         return particles;
+		} catch(Exception ex) {
+			
+			Blacklist blacklistCrops = Core.getInstance().GetCropBlacklist();
+			
+			Core.DebugPrint("Exception caught within the BoneMealer. \n "
+					+ "Bonemealed-block: " + block + "\n"
+					+ "Blacklist not null: " + (blacklistCrops != null) + "\n"
+					+ "Materials-convertion: " + Materials.GetType(block).toString() + "\n"
+					+ "Is-tree: " + Materials.IsSimilar(block, EMaterial.Sapling) + "\n" + ex);
+			
+			return false;
+		}
 	}
 	
 	public void growBlockFromStem(Block block) { //TODO: Connect stem to block!!
+		Core.DebugPrint("Growing a block from stem: " + block);
 		double x = block.getLocation().getX();
 		double y = block.getLocation().getY();
 		double z = block.getLocation().getZ();
@@ -354,6 +378,7 @@ public class BoneMealer {
 	}
 	
 	public void growBlockInWater(Block block, int layers) {
+		Core.DebugPrint("Growing a block within the water: " + block);
 		if(!isSucces()) return;
 		
 		double x = block.getLocation().getX();
@@ -372,6 +397,7 @@ public class BoneMealer {
 	}
 	
 	public void growBlockInAir(Block block, int layers, boolean growDown) {
+		Core.DebugPrint("Growing a block within the air: " + block + "\n Is Down: " + growDown);
 		if(!isSucces()) return;
 		
 		double x = block.getLocation().getX();
@@ -392,6 +418,7 @@ public class BoneMealer {
 	}
 	
 	public void updateCropState(Block block, boolean useRandom) {
+		Core.DebugPrint("Modifying Crop State for: " + block);
 		BlockState bs = block.getState();
 		MaterialData state = bs.getData();
 		if(state instanceof Crops) {
@@ -418,13 +445,14 @@ public class BoneMealer {
 				plant.setBerries(true);
 			}
 		}
-		else Core.DeveloperPrint("Crop State invalid: " + state);
+		else Core.DebugPrint("Crop State invalid: " + state);
 		
 		bs.setData(state);
 		bs.update(true);
 	}
 	
 	public void updateRawData(Block block, boolean useRandom, int dataLimit) {
+		Core.DebugPrint("Modifying Raw Data for: " + block);
 		BlockState bs = block.getState();
 		
 		Random rand = new Random();

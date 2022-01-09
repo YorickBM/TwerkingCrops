@@ -1,12 +1,12 @@
 name: Twerking-Crops
 main: Spigot.TwerkingCrops.Core
-version: 10.0
-api-version: 1.13
+version: 11.0
+description: Plugin to twerk around with.
 commands:
    set:
       description: Set the value of a function/variable In-Game
       usage: <command> <function> <value>
    blacklist:
       description: Blacklist a crop or wolrd In-Game
-      usage: <command> <crop/world> <value>
+      usage: <command> <crop/world> <action> <value>
       
